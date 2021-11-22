@@ -154,6 +154,7 @@ template <class T> class bpNeuralNetwork
 		{
 			for(i = 0; i < numTrainSample; i++)
 			{
+				// make an input vector of len num of input data, for a given training sample i
 				for(k = 0; k < numNeuronIn_; k++)
 					indata_[k] = trainData[i][k];
 				
