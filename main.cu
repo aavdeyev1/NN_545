@@ -11,8 +11,8 @@
 #include <limits>
 #include <string.h>
 
-#include <cpu.h>
-#include <kernels.h>
+#include "cpu.h"
+#include "kernels.h"
 
 // Make static array for these numbers so we can grow the number of hidden layers
 #define numIn_ 2
