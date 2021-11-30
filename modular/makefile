@@ -1,6 +1,6 @@
 CXX = g++ -g -Wall
 
-CFLAGS += -I./
+CFLAGS += -std=c++11 -I./
 
 objects = demo_driver.o tensor.o tensor_ops.o tests.o layer.o matrix_math.o metrics.o dataloader.o
 
