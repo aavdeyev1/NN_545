@@ -14,7 +14,7 @@ kernels.o: kernels.cu
 	$(NVCC) -arch=sm_52 -c kernels.cu 
 
 cpu.o: cpu.cpp
-	$(CXX) -c cpu.c
+	$(CXX) -c cpu.cpp
 
 clean:
 	rm -f *.o
