@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include <iostream>
+using namespace std;
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
@@ -67,7 +69,7 @@ void runGPU() {
 }
 
 
-void printArray(float *arr, int rows, int cols, int shouldPrint){
+void printArray(int *arr, int rows, int cols, int shouldPrint){
     if (!shouldPrint)
        return;
            
