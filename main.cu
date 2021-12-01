@@ -12,8 +12,8 @@ using namespace std;
 #include <limits>
 #include <string.h>
 
-#include <helper_cuda.h>
-#include <helper_timer.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include "cpu.h"
 #include "kernels.h"
 
