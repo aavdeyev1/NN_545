@@ -105,7 +105,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
-        checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_, cudaMemcpyHostToDevice) );
+        checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
 
         dim3 grid, block;
 
@@ -115,8 +115,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         grid.y  = ceil( (float)numTrainSample_ / block.y );
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
-        checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_, cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
