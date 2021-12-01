@@ -23,6 +23,8 @@ using namespace std;
 #define numTrainSample_ 64
 
 void printArray(int *arr, int rows, int cols, int shouldPrint);
+__global__ void kernel4( int *input, int *output, int numIn, int numPairs );
+
 
 int main()
 {
@@ -105,8 +107,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         grid.y  = 1;
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
-        cudaMemcpy( h_input, d_input, bytes, cudaMemcpyDeviceToHost );
-        cudaMemcpy( h_output, d_output, bytes, cudaMemcpyDeviceToHost );
+        cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost );
+        cudaMemcpy( h_output, d_output, numOut_*numTrainSample_, cudaMemcpyDeviceToHost );
 
         free( h_input );
         free( h_output );
