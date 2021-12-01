@@ -96,11 +96,11 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         // Allocate dev mem
         int *d_input=0, *d_output=0;
-        cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) );
-        cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) );
+        checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
+        checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) ) );
 
-        cudaMemcpy( d_input, trainData, numIn_*numTrainSample_, cudaMemcpyHostToDevice);
-        cudaMemcpy( d_output, trueOut, numIn_*numTrainSample_, cudaMemcpyHostToDevice);
+        checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
+        ccheckCudaErrors( udaMemcpy( d_output, trueOut, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
 
         dim3 grid, block;
 
@@ -110,8 +110,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         grid.y  = 1;
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
-        cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost );
-        cudaMemcpy( h_output, d_output, numOut_*numTrainSample_, cudaMemcpyDeviceToHost );
+        checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_, cudaMemcpyDeviceToHost ) );
 
         free( h_input );
         free( h_output );
