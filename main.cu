@@ -120,13 +120,13 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_, cudaMemcpyDeviceToHost ) );
 
+        printArray(h_input, numTrainSample_, numIn_, 1);
+        printArray(h_output, 1, numTrainSample_, 1);
+
         free( h_input );
         free( h_output );
         cudaFree( d_input );
         cudaFree( d_output );
-
-        printArray(h_input, numTrainSample_, numIn_, 1);
-        printArray(h_output, 1, numTrainSample_, 1);
         
     // for each training interation in maxNumTrainIterations
     // for each training pair k:
