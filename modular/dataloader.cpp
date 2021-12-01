@@ -1,77 +1,164 @@
 #include "dataloader.h"
 
-TrainBatch::TrainBatch():inputs(NULL), targets(NULL) {}
+TrainBatch::TrainBatch(TensorShape inputsShape, TensorShape targetsShape):
+inputs(CPU, inputsShape),
+targets(CPU, targetsShape) {}
+
+Tensor TrainBatch::getInputs() {
+    return inputs;
+}
+
+Tensor TrainBatch::getTargets() {
+    return targets;
+}
+
+TensorShape TrainBatch::getInputsShape(){
+    return inputs.getShape();
+}
+
+TensorShape TrainBatch::getTargetsShape(){
+    return targets.getShape();
+}
 
 CSVTrainTestDataLoader::CSVTrainTestDataLoader(std::string xTrainPath, std::string xTestPath, std::string yTrainPath, std::string yTestPath) :
-xTrainPath(xTrainPath), xTestPath(xTestPath), yTrainPath(yTrainPath), yTestPath(yTestPath) {}
+xTrainPath(xTrainPath),
+xTestPath(xTestPath),
+yTrainPath(yTrainPath),
+yTestPath(yTestPath) {
+    xNumFeatures = getNumColsInFirstRowOfFile(xTrainPath);
+    xNumTrainRows = getNumNonBlankLinesInFile(xTrainPath, xNumFeatures);
+    xNumTestRows = getNumNonBlankLinesInFile(xTestPath, xNumFeatures);
+
+    yNumFeatures = getNumColsInFirstRowOfFile(yTrainPath);
+    yNumTrainRows = getNumNonBlankLinesInFile(yTrainPath, yNumFeatures);
+    yNumTestRows = getNumNonBlankLinesInFile(yTestPath, yNumFeatures);
+
+    if(xNumTrainRows != yNumTrainRows){
+        std::cout << "ERROR: Need to have the same number of rows in X and Y train CSV files." << std::endl;
+        exit(1);
+    }
+    if(xNumTestRows != yNumTestRows){
+        std::cout << "ERROR: Need to have the same number of rows in X and Y test CSV files." << std::endl;
+        exit(1);
+    }
+
+    xTrain.reset(new Tensor(CPU, {xNumTrainRows, xNumFeatures}));
+    yTrain.reset(new Tensor(CPU, {yNumTrainRows, yNumFeatures}));
+    xTest.reset(new Tensor(CPU, {xNumTestRows, xNumFeatures}));
+    yTest.reset(new Tensor(CPU, {yNumTestRows, yNumFeatures}));
+}
 
 void CSVTrainTestDataLoader::loadAll() {
-    std::vector<std::vector<std::string>> cells;
-
-    cells = loadCSVCells(xTrainPath);
-    xTrain = CSVRowsToTensor(cells);
-    cells.clear();
-
-    cells = loadCSVCells(xTestPath);
-    xTest = CSVRowsToTensor(cells);
-    cells.clear();
-
-    cells = loadCSVCells(yTrainPath);
-    yTrain = CSVRowsToTensor(cells);
-    cells.clear();
-
-    cells = loadCSVCells(yTestPath);
-    yTest = CSVRowsToTensor(cells);
-    cells.clear();
+    loadCSVCells(xTrainPath, xTrain.get());
+    loadCSVCells(yTrainPath, yTrain.get());
+    loadCSVCells(xTestPath, xTest.get());
+    loadCSVCells(yTestPath, yTest.get());
 }
 
-Tensor* CSVRowsToTensor(const std::vector<std::vector<std::string>> &cells)
+int getNumNonBlankLinesInFile(std::string path, int expectedCols)
 {
-    size_t height = cells.size();
-    size_t width = cells.at(0).size();
-    std::vector<std::string> rowIn;
-
-    Tensor * data = new Tensor(CPU, {height, width});
-
-    for(int i = 0; i < height; i++)
-    {
-        rowIn = cells.at(i);
-        if(rowIn.size() != width){
-            std::cout << "ERROR: Malformed data is not a full matrix." << std::endl;
-            exit(1);
-        }
-
-        for(int j = 0; j < width; j++){
-            data->value[i * width + j] = (float) atof(rowIn.at(j).c_str());
-        }
-    }
-
-    return data;
-}
-
-std::vector<std::vector<std::string>> loadCSVCells(std::string path)
-{
-    std::vector<std::vector<std::string>> cells;
     std::ifstream in(path);
     std::string line;
+    int numLines = 0;
+    int lineIdx = 0;
     while ( std::getline(in, line) )
     {
-        cells.push_back(split(line, ','));
+        while(line.length() == 0)
+        {
+            getline(in, line);
+            lineIdx++;
+        }
+        if(numTokens(line) != expectedCols){
+            std::cout << "There was an error: Line " << lineIdx << " does not have the expected number of " << expectedCols << " columns." << std::endl;
+        }
+        lineIdx++;
+        numLines++;
     }
-    return cells;
+    return numLines;
 }
 
-std::vector<std::string> split (const std::string &s, char delim) {
-    // https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
-    std::vector<std::string> result;
-    std::stringstream ss (s);
-    std::string item;
+int getNumColsInFirstRowOfFile(std::string path)
+{
+    int n = 0;
+    std::ifstream in(path);
+    std::string line;
+    std::getline(in, line);
+    n = numTokens(line);
+    return n;
+}
 
-    while (getline (ss, item, delim)) {
-        result.push_back (item);
+int numTokens(std::string str)
+{
+    int numTokens = 0;
+
+    int tokenStart = 0;
+    int tokenEnd = 0;
+    for(int i = 0; i < str.length() - 1; i++) {
+        if(str.at(i) == ',') {
+            tokenEnd = i - 1;
+            if(tokenEnd - tokenStart >= 1)
+                numTokens++;
+
+            tokenStart = i + 1;
+        }
+    }
+    tokenEnd = str.length() - 1;
+    if(tokenEnd - tokenStart >= 1 && str.at(tokenEnd != ',')) {
+        numTokens++;
+    }
+    return numTokens;
+}
+
+void loadCSVCells(std::string path, Tensor * out)
+{
+    float parsedToken;
+    std::ifstream in(path);
+    std::string line;
+
+    if(out->ndims() != 2) {
+        std::cout << "ERROR: CSV file needs to be loaded into a 2D tensor." << std::endl;
+        exit(1);
     }
 
-    return result;
+    int tokenIdx = 0;
+
+    int nRows = out->getShape().x;
+    int nCols = out->getShape().y;
+
+    int col = 0;
+    int row = 0;
+    while ( std::getline(in, line) )
+    {
+        col = 0;
+        while(line.length() == 0)
+        {
+            getline(in, line);
+        }
+        int tokenStart = 0;
+        int tokenEnd = 0;
+        for(int i = 0; i < line.length() - 1; i++) {
+            if(line.at(i) == ',') {
+                tokenEnd = i - 1;
+                if(tokenEnd - tokenStart >= 1) {
+                    parsedToken = std::stof(line.substr(tokenStart, tokenEnd - tokenStart));
+                    if(tokenIdx < out->dataLength()) {
+                        out->data()[tokenIdx] = parsedToken;
+                    } else {
+                        std::cout << "ERROR: Too many tokens in input file while loading CSV." << std::endl;
+                        exit(1);
+                    }
+                    tokenIdx += 1;
+                }
+                tokenStart = i + 1;
+            }
+        }
+        tokenEnd = line.length() - 1;
+        if(tokenEnd - tokenStart >= 1 && line.at(tokenEnd != ',')) {
+            out->data()[tokenIdx] = std::stof(line.substr(tokenStart, tokenEnd - tokenStart));
+        }
+
+        row++;
+    }
 }
 
 std::vector<int> generateIdxs(int numIdxs, int numRows)
@@ -91,26 +178,26 @@ std::vector<int> generateIdxs(int numIdxs, int numRows)
     return vec;
 }
 
-void CSVTrainTestDataLoader::loadTrainingBatch(TrainBatch* batch, Device device, int batchSize) {
+void CSVTrainTestDataLoader::loadTrainingBatch(TrainBatch &batch) {
+    // todo: this code is broken.
+    int batchSize = batch.getInputsShape().x;
     int datasetSize = xTrain->getShape().matrixHeight();
     int numInputFeatures = xTrain->getShape().y;
     int numTargetFeatures = yTrain->getShape().y;
-
-    Tensor * inputBatch = new Tensor(device, {batchSize, numInputFeatures});
-    Tensor * targetBatch = new Tensor(device, {batchSize, numTargetFeatures});
 
     std::vector<int> trainIdxs = generateIdxs(batchSize, datasetSize);
 
     float * inputsSourcePtr;
     float * targetsSourcePtr;
 
-    float * inputsBatchPtr = inputBatch->value;
-    float * targetsBatchPtr = targetBatch->value;
+    float * inputsBatchPtr = batch.getInputs().data();
+    float * targetsBatchPtr = batch.getTargets().data();
 
     for(int i = 0; i < trainIdxs.size(); i++) {
-        int idx = trainIdxs.at(i);
-        inputsSourcePtr = &xTrain->value[idx * numInputFeatures];
-        targetsSourcePtr = &yTrain->value[idx * numTargetFeatures];
+        // int idx = trainIdxs.at(i); // todo fixme
+        int idx = i;
+        inputsSourcePtr = &xTrain->data()[idx * numInputFeatures];
+        targetsSourcePtr = &yTrain->data()[idx * numTargetFeatures];
         for(int j = 0; j < numInputFeatures; j++) {
             *inputsBatchPtr = *inputsSourcePtr;
             inputsBatchPtr++;
@@ -122,16 +209,4 @@ void CSVTrainTestDataLoader::loadTrainingBatch(TrainBatch* batch, Device device,
             targetsSourcePtr++;
         }
     }
-    inputBatch->move(device);
-    targetBatch->move(device);
-
-    if(batch->inputs != NULL) {
-        delete batch->inputs;
-    }
-    if(batch->targets != NULL){
-        delete batch->targets;
-    }
-
-    batch->inputs = inputBatch;
-    batch->targets = targetBatch;
 }

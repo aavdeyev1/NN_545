@@ -9,38 +9,34 @@ void runAllTests(Device testDevice)
     testMatmulCorrect(testDevice);
     testTransposedCopyCorrect(testDevice);
     testCSVLoader();
-    testGetTrainBatch(testDevice);
+    testGetTrainBatch();
+    testNumTokens();
 }
 
 void testAddTensors(Device testDevice)
 {
     if(testDevice == CPU) {
         TensorShape shape = {4};
-        Tensor *A = new Tensor(CPU, shape);
+        Tensor A(CPU, shape);
         fill(A, 1.0f);
 
 
-        Tensor *B = new Tensor(CPU, shape);
+        Tensor B(CPU, shape);
         fill(B, 2.0f);
 
-        Tensor *C = new Tensor(CPU, shape);
+        Tensor C(CPU, shape);
 
         addTensors(A, B, C);
 
-        for (int i = 0; i < C->dataLength(); i++) {
-            if (C->value[i] != 3.0f) {
+        for (int i = 0; i < C.dataLength(); i++) {
+            if (C.data()[i] != 3.0f) {
                 std::cout << "testAddTensors failed." << std::endl;
                 exit(1);
             }
         }
-
-        delete A;
-        delete B;
-        delete C;
     } else if(testDevice == GPU){
         // todo support gpu
     }
-
     std::cout << "testAddTensors passed." << std::endl;
 }
 
@@ -48,8 +44,7 @@ void testTensorSmoke(Device testDevice)
 {
     if(testDevice == CPU){
         TensorShape shape = {3, 4};
-        Tensor* A = new Tensor(CPU, shape);
-        delete A;
+        Tensor ATensor(CPU, shape);
     } else if(testDevice == GPU){
         // todo support GPU
     }
@@ -63,16 +58,14 @@ void testLayerSmoke(Device testDevice)
         TensorShape inputLayerShape = {4, 4};
         TensorShape linearLayerShape = {4, 8};
 
-        InputLayer *inputLayer = new InputLayer(CPU, inputLayerShape);
+        InputLayer inputLayer("testInput", CPU, inputLayerShape);
 
-        LinearLayer *linearLayer = new LinearLayer(inputLayer, 8);
+        LinearLayer linearLayer("testLinear", &inputLayer, 8);
 
-        if (!linearLayer->getOutputShape().equals(linearLayerShape)) {
+        if (!linearLayer.getOutputShape().equals(linearLayerShape)) {
             std::cout << "testLayerSmoke failed shape test." << std::endl;
             exit(1);
         }
-
-        delete inputLayer;
     } else if(testDevice == GPU) {
         // todo support GPU
     }
@@ -85,18 +78,15 @@ void testMatmulSmoke(Device testDevice)
         TensorShape shapeA = {3, 4};
         TensorShape shapeB = {4, 7};
         TensorShape shapeC = {3, 7};
-        Tensor* A = new Tensor(CPU, shapeA);
+        Tensor A(CPU, shapeA);
         fill(A, 1.0f);
 
 
-        Tensor* B = new Tensor(CPU, shapeB);
+        Tensor B(CPU, shapeB);
         fill(B, 2.0f);
-        Tensor * C = new Tensor(CPU, shapeC);
+        Tensor C(CPU, shapeC);
 
         matmul(A, B, C);
-        delete A;
-        delete B;
-        delete C;
     }
     else if(testDevice == GPU){
         // todo support gpu
@@ -110,33 +100,32 @@ void testMatmulCorrect(Device testDevice)
     TensorShape shape = {2, 2};
 
     if(testDevice == CPU){
-        Tensor* A = new Tensor(CPU, shape);
-        A->value[0] = 1;
-        A->value[1] = 2;
-        A->value[2] = 3;
-        A->value[3] = 4;
+        Tensor A(CPU, shape);
+        A.data()[0] = 1;
+        A.data()[1] = 2;
+        A.data()[2] = 3;
+        A.data()[3] = 4;
 
-        Tensor* B = new Tensor(CPU, shape);
-        B->value[0] = -4;
-        B->value[1] = -3;
-        B->value[2] = -2;
-        B->value[3] = -1;
+        Tensor B(CPU, shape);
+        B.data()[0] = -4;
+        B.data()[1] = -3;
+        B.data()[2] = -2;
+        B.data()[3] = -1;
 
-        Tensor* C = new Tensor(CPU, shape);
+        Tensor C(CPU, shape);
 
         matmul(A, B, C);
-        if( C->value[0] != -8 ||
-            C->value[1] != -5 ||
-            C->value[2] != -20 ||
-            C->value[3] != -13){
+        if( C.data()[0] != -8 ||
+            C.data()[1] != -5 ||
+            C.data()[2] != -20 ||
+            C.data()[3] != -13){
             std::cout << "testMatmulCorrect failed first test. Got value:" <<std::endl;
-            std::cout << C->toString() << std::endl;
+            std::cout << C.toString() << std::endl;
             exit(1);
         }
     } else if (testDevice == GPU){
         // todo support GPU
     }
-
     std::cout << "testMatmulCorrect passed." << std::endl;
 }
 
@@ -145,24 +134,24 @@ void testTransposedCopyCorrect(Device testDevice)
     if(testDevice == CPU){
         TensorShape shapeA = {2, 3};
         TensorShape shapeB = {3, 2};
-        Tensor* A = new Tensor(CPU, shapeA);
-        Tensor* B = new Tensor(CPU, shapeB);
-        A->value[0] = 1;
-        A->value[1] = 2;
-        A->value[2] = 3;
-        A->value[3] = -1;
-        A->value[4] = -2;
-        A->value[5] = -3;
+        Tensor A(CPU, shapeA);
+        Tensor B(CPU, shapeB);
+        A.data()[0] = 1;
+        A.data()[1] = 2;
+        A.data()[2] = 3;
+        A.data()[3] = -1;
+        A.data()[4] = -2;
+        A.data()[5] = -3;
         transposedCopy(A, B);
-        if( B->value[0] != 1 &&
-            B->value[1] != -1 &&
-            B->value[2] != 2 &&
-            B->value[3] != -2 &&
-            B->value[4] != 3 &&
-            B->value[5] != -3
+        if( B.data()[0] != 1 &&
+            B.data()[1] != -1 &&
+            B.data()[2] != 2 &&
+            B.data()[3] != -2 &&
+            B.data()[4] != 3 &&
+            B.data()[5] != -3
                 ){
             std::cout << "testTransposedCopyCorrect failed, value of out matrix:" << std::endl;
-            std::cout << B->toString() << std::endl;
+            std::cout << B.toString() << std::endl;
             exit(1);
         }
     } else if(testDevice == GPU){
@@ -175,7 +164,8 @@ void testTransposedCopyCorrect(Device testDevice)
 void testCSVLoader()
 {
     std::string path = "datasets/california_housing_prepared/x_test.csv";
-    std::vector<std::vector<std::string>> cells = loadCSVCells(path);
+    Tensor* dataCache = new Tensor(CPU, {6192, 8}); // # lines in CSV file, $ columns
+    loadCSVCells(path, dataCache);
     /*
     std::cout << "CSV loader test:";
 
@@ -188,12 +178,15 @@ void testCSVLoader()
     }
     std::cout << std::endl;
      */
+    delete dataCache;
 }
 
-void testGetTrainBatch(Device testDevice)
+void testGetTrainBatch()
 {
-    TrainBatch batch;
+    int numFeaturesIn = 8;
+    int numFeaturesOut = 1;
     int batchSize = 12;
+    TrainBatch batch({batchSize, numFeaturesIn}, {batchSize, numFeaturesOut});
     std::string xTrainPath = "datasets/california_housing_prepared/x_train.csv";
     std::string xTestPath = "datasets/california_housing_prepared/x_test.csv";
     std::string yTrainPath = "datasets/california_housing_prepared/y_train.csv";
@@ -201,13 +194,31 @@ void testGetTrainBatch(Device testDevice)
 
     CSVTrainTestDataLoader loader(xTrainPath, xTestPath, yTrainPath, yTestPath);
     loader.loadAll();
-    loader.loadTrainingBatch(&batch, testDevice, batchSize);
+    loader.loadTrainingBatch(batch);
 
     std::cout << "Test training batch: " << std::endl << "Inputs:" << std::endl;
-    std::cout << batch.inputs->toString() << std::endl;
+    std::cout << batch.getInputs().toString() << std::endl;
     std::cout << "Targets:" << std::endl;
-    std::cout << batch.targets->toString() << std::endl;
+    std::cout << batch.getTargets().toString() << std::endl;
+}
 
-    delete batch.inputs;
-    delete batch.targets;
+void testTensorCopyConstructorHelper(Tensor t2)
+{
+    std::cout << t2.getId() << std::endl;
+}
+
+void testTensorCopyConstructor(Device testDevice)
+{
+    Tensor t(testDevice, {4, 4});
+    fill(t, 1.0f);
+    testTensorCopyConstructorHelper(t);
+}
+
+void testNumTokens() {
+    bool pass = true;
+    std::string s = "This, is, string,";
+    if(numTokens(s) != 3) pass = false;
+
+    if(!pass) std::cout << "testNumTokens failed." << std::endl;
+    else std::cout << "testNumTokens passed." << std::endl;
 }

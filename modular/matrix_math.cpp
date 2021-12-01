@@ -6,7 +6,8 @@ void matmul2DCPU(float* A, float* B, float *out, int M, int N, int P)
         for(int j = 0; j < P; j++){
             out[i * P + j] = 0;
             for(int k = 0; k < N; k++){
-                out[i * P + j] += A[i * N + k] * B[k *P + j];
+                //matC[i][j]+=matA[i][k]*matB[k][j];
+                out[i * P + j] += A[i * N + k] * B[k * P + j];
             }
         }
     }
@@ -36,3 +37,4 @@ void sigmoidFunctionElementwiseCPU(float* in, float* out, int n, bool forward)
 
     }
 }
+

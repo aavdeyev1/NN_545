@@ -22,4 +22,10 @@ void testTransposedCopyCorrect(Device testDevice);
 
 void testCSVLoader();
 
-void testGetTrainBatch(Device testDevice);
+void testGetTrainBatch();
+
+void testTensorCopyConstructorHelper(Tensor t2);
+
+void testTensorCopyConstructor(Device testDevice);
+
+void testNumTokens();

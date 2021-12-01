@@ -1,24 +1,17 @@
 #include "layer.h"
 
-Layer::~Layer() {
-    if(outputCache != NULL) delete outputCache;
-    if(variables != NULL) delete variables;
-    if(inputGradsCache != NULL) delete inputGradsCache;
-
-}
-
-Layer::Layer(Device device, Layer* inputLayer, TensorShape outputShape, TensorShape gradsCacheShape):
-name("unnamed"),
+Layer::Layer(std::string name,
+             Device device,
+             Layer* inputLayer,
+             TensorShape inputShape,
+             TensorShape outputShape):
+name(name),
 device(device),
 inputLayer(inputLayer),
+inputShape(inputShape),
 outputShape(outputShape),
-gradsCacheShape(gradsCacheShape),
-outputCache(NULL),
-variables(NULL),
-inputGradsCache(NULL)
- {
-
- }
+output(device, outputShape)
+ { }
 
  void Layer::setOutputLayer(Layer *newOutputLayer) {
     outputLayer = newOutputLayer;
@@ -30,35 +23,11 @@ void Layer::backward() {}
 
 std::string Layer::getName() { return name; }
 
-void Layer::setName(std::string newName) { name = newName; }
-
 Device Layer::getDevice() {
     return device;
 }
 
-void Layer::ensureCachesAllocated() {
-    TensorShape outputShape = getOutputShape();
-    if(outputCache == NULL){
-        std::cout << "Input layer device: " << inputLayer->getDevice() << std::endl;
-        std::cout << "Output shape: " << outputShape.toString() << std::endl;
-        outputCache = new Tensor(inputLayer->getDevice(), outputShape);
-    } else if (!outputCache->getShape().equals(outputShape))
-    {
-        delete outputCache;
-        outputCache = new Tensor(inputLayer->getDevice(), outputShape);
-    }
-
-    if(inputGradsCache == NULL && !gradsCacheShape.equals(TensorShape(0))){
-        inputGradsCache = new Tensor(inputLayer->getDevice(), gradsCacheShape);
-    } else if(!gradsCacheShape.equals(inputGradsCache->getShape())){
-        delete inputGradsCache;
-        inputGradsCache = new Tensor(inputLayer->getDevice(), gradsCacheShape);
-    }
-
-}
-
-TensorShape Layer::getOutputShape()
-{
+TensorShape Layer::getOutputShape(){
     return outputShape;
 }
 
@@ -77,82 +46,58 @@ std::string Layer::toString() {
     else ss << "    Output layer: " << outputLayer->getName() << std::endl;
 
     ss << "    Output shape: " << outputShape.toString() << std::endl;
-    ss << "    Variable data: ";
-    if(variables == NULL) ss << "NULL" << std::endl;
-    else ss << std::endl << variables->toString() << std::endl;
-    ss << "    Output cache allocated: ";
-    if(outputCache != NULL) ss << "true" << std::endl;
-    else ss << "false" << std::endl;
-    ss << "    Gradient data cache allocated: ";
-    if(inputGradsCache != NULL) ss << "true" << std::endl;
-    else ss << "false" << std::endl;
 
     return ss.str();
 }
 
 /// Input layer
 
-InputLayer::InputLayer(Device device, TensorShape inputShape) :
-    Layer(device, NULL, inputShape, TensorShape(0)), inputShape(inputShape)
-{
-}
+InputLayer::InputLayer(std::string name, Device device, TensorShape inputShape) :
+    Layer(name, device, NULL, inputShape, inputShape) { }
 
 void InputLayer::setData(Tensor inputData) {
     if(!inputData.getShape().equals(inputShape)){
         std::cout << "ERROR: Wrong input data shape for InputLayer." << std::endl;
         exit(1);
     }
-    outputCache = &inputData;
-}
+    if(inputData.getDevice() == getDevice()){
+        output = inputData;
+    } else {
+        //todo support moving data onto the GPU here
+    }
 
-TensorShape InputLayer::getOutputShape() {
-    return inputShape;
 }
 
 void InputLayer::forward(){
-    outputLayer->forward();
+    if(outputLayer != NULL) {
+        outputLayer->forward();
+    }
 }
 
 void InputLayer::backward() { }
 
 /// LinearLayer
 
-LinearLayer::LinearLayer(Layer *inputLayer, int outputDim) :
-Layer(inputLayer->getDevice(), inputLayer, TensorShape(0), TensorShape(0)),
-outputDim(outputDim)
+LinearLayer::LinearLayer(std::string name, Layer * inputLayer, int outputDim) :
+    Layer(name, inputLayer->getDevice(),
+          inputLayer,
+          inputLayer->getOutputShape(),
+          {inputLayer->getOutputShape().x, outputDim}
+          ),
+          weights(inputLayer->getDevice(), {outputShape.y, outputDim}),
+          bias(inputLayer->getDevice(), TensorShape(1))
 {
     inputLayer->setOutputLayer(this);
-    outputShape = calcOutputShape(inputLayer->getOutputShape(), outputDim);
-    gradsCacheShape = outputShape;
     initWeights();
-}
-
-TensorShape LinearLayer::calcOutputShape(TensorShape inputShape, int outputDim)
-{
-    int batchSize;
-    if(inputLayer->getOutputShape().ndims() == 2) {
-    // Batched data
-        batchSize = inputLayer->getOutputShape().x;
-    } else {
-    // todo: handle input not 2D matrix
-    }
-    return TensorShape(batchSize, outputDim);
-}
-
-TensorShape LinearLayer::calcWeightsShape() {
-    int inputFeatures = inputLayer->getOutputShape().y;
-    return TensorShape(inputFeatures, outputDim);
+    fill(bias, 0);
 }
 
 void LinearLayer::initWeights() {
     // Set weights using Glorot Uniform initialization
 
-    if(variables == NULL) {
-        variables = new Tensor(getDevice(), calcWeightsShape());
-    }
 
-    int featuresIn = variables->getShape().matrixHeight();
-    int featuresOut = variables->getShape().matrixWidth();
+    int featuresIn = weights.getShape().matrixHeight();
+    int featuresOut =  weights.getShape().matrixWidth();
 
     float sd = (float) sqrt( 6.0 / (featuresIn + featuresOut));
 
@@ -161,94 +106,65 @@ void LinearLayer::initWeights() {
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-sd, sd);
 
-    for(int i = 0; i < variables->dataLength(); i++)
+    for(int i = 0; i < weights.dataLength(); i++)
     {
-        variables->value[i] = dis(gen);
+        weights.data()[i] = dis(gen);
     }
 }
 
 void LinearLayer::forward() {
-    ensureCachesAllocated();
-    matmul(inputLayer->outputCache, variables, outputCache);
+    matmul(inputLayer->output, weights, output);
     outputLayer->forward();
 }
 
 void LinearLayer::backward() {
-    ensureCachesAllocated();
-    // Gradient of weights w.r.t. input value X = transposed(X)
-     transposedCopy(inputLayer->outputCache, inputGradsCache);
+    //todo
      inputLayer->backward();
 }
 
-TensorShape LinearLayer::getOutputShape() {
-    outputShape = calcOutputShape(inputLayer->getOutputShape(), outputDim);
-    return outputShape;
-}
-
 // Sigmoid layer
-SigmoidLayer::SigmoidLayer(Layer *inputLayer) :
-Layer(inputLayer->getDevice(), inputLayer, inputLayer->getOutputShape(), inputLayer->getOutputShape())
+SigmoidLayer::SigmoidLayer(std::string name, Layer *inputLayer) :
+Layer(name,
+      inputLayer->getDevice(),
+      inputLayer,
+      inputLayer->getOutputShape(),
+      inputLayer->getOutputShape())
 {
     inputLayer->setOutputLayer(this);
 }
 
 void SigmoidLayer::forward() {
-    ensureCachesAllocated();
-    sigmoidFunction(inputLayer->outputCache, outputCache, true);
+    sigmoidFunction(inputLayer->output, output, true);
     outputLayer->forward();
 }
 
 void SigmoidLayer::backward() {
-    ensureCachesAllocated();
-    sigmoidFunction(inputLayer->outputCache, inputGradsCache, false);
+    // sigmoidFunction(inputLayer->output, tensor of grads, false);
     inputLayer->backward();
 }
 
-TensorShape SigmoidLayer::getOutputShape() {
-    outputShape = inputLayer->getOutputShape();
-    return outputShape;
-}
-
-LossLayer::LossLayer(Layer *inputLayer):
-    Layer(inputLayer->getDevice(), inputLayer, TensorShape(0), inputLayer->getOutputShape()),
-    targets(NULL)
+LossLayer::LossLayer(std::string name, Layer *inputLayer):
+    Layer(name,
+          inputLayer->getDevice(),
+          inputLayer,
+          inputLayer->getOutputShape(),
+          TensorShape(1)),
+    targets(inputLayer->getDevice(), inputLayer->getOutputShape())
 {
     inputLayer->setOutputLayer(this);
     setOutputLayer(NULL);
 }
 
-LossLayer::~LossLayer() {
-    if(targets != NULL) delete targets;
-}
-
-void LossLayer::setTargets(Tensor *newTargets) {
-    if(targets != NULL) delete targets;
+void LossLayer::setTargets(const Tensor newTargets) {
     targets = newTargets;
 }
 
-ModelMetrics LossLayer::getMetrics()
-{
-    return metrics;
-}
-
 void LossLayer::forward() {
-    if(!targets->getShape().equals(gradsCacheShape) && targets->getShape().equals(inputLayer->getOutputShape()))
-    {
-        if(inputGradsCache != NULL) delete inputGradsCache;
-        inputGradsCache = new Tensor(getDevice(), targets->getShape());
-    } else if (!targets->getShape().equals(gradsCacheShape) && !targets->getShape().equals(inputLayer->getOutputShape())) {
-        std::cout << "ERROR: Incomptaible shapes from input tensor & target tensor." << std::endl;
-        exit(1);
-    }
-    metrics = ModelMetrics{mse(targets, inputLayer->outputCache)};
+    MSE(targets, inputLayer->output, output);
+    MSE(targets, inputLayer->output, output);
 }
 
 void LossLayer::backward() {
-    ensureCachesAllocated();
-    MSEGradient(targets, inputLayer->outputCache, inputGradsCache);
+    // todo
     inputLayer->backward();
-}
-
-TensorShape LossLayer::getOutputShape(){
-    return NULL;
 }

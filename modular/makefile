@@ -2,7 +2,7 @@ CXX = g++ -g -Wall
 
 CFLAGS += -I./
 
-objects = demo_driver.o tensor.o tensor_ops.o tests.o layer.o matrix_math.o metrics.o dataloader.o
+objects = demo_driver.o tensor.o tensor_ops.o tests.o layer.o matrix_math.o dataloader.o
 
 %.o: %.cpp
 	$(CXX) -c -g $(CFLAGS) $< -o $@

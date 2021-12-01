@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <memory>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -16,7 +17,7 @@ struct TensorShape
     bool equals(TensorShape otherShape);
     int matrixWidth();
     int matrixHeight();
-    TensorShape transposedCopy();
+    TensorShape transposed();
     std::string toString();
 };
 
@@ -25,21 +26,28 @@ class Tensor
 private:
 	static int nextId;
 	int id;
+    int* referenceCount;
     Device device;
     TensorShape shape;
+    bool isShallowCopy;
+    float* value;
 	
 public:
-	float *value;
+    ~Tensor();
     Tensor(Device device, TensorShape shape);
-	std::string toString();
+    Tensor(const Tensor &copyObj);
+    void resizeData(TensorShape shape);
+
+    std::string toString();
     TensorShape getShape();
     Device getDevice();
+    float* data();
 
     void move(Device newDevice);
 
 	int ndims();
 	int getId();
 	int dataLength();
-	
-~Tensor();
+
+    float item();
 };

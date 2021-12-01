@@ -3,16 +3,19 @@
 #include "matrix_math.h"
 #include "tensor.h"
 
-void fill(Tensor* t, float val);
+using std::cout;
+using std::endl;
 
-void addTensors(Tensor* A, Tensor* B, Tensor *out);
+void fill(Tensor t, float val);
 
-void matmul(Tensor* A, Tensor* B, Tensor* out);
+void addTensors(Tensor A, Tensor B, Tensor out);
 
-void transposedCopy(Tensor* in, Tensor* out);
+void matmul(Tensor A, Tensor B, Tensor out);
 
-void sigmoidFunction(Tensor* in, Tensor* out, bool forward);
+void transposedCopy(Tensor in, Tensor out);
 
-void MSEGradient(Tensor* targets, Tensor* inputs, Tensor* out);
+void sigmoidFunction(Tensor in, Tensor out, bool forward);
 
-Tensor * matrixFromTensorVector(std::vector<Tensor*> tensors);
+void MSE(Tensor targets, Tensor predictions, Tensor out);
+
+void MSEGradient(Tensor targets, Tensor predictions, Tensor out);

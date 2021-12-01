@@ -39,7 +39,7 @@ int TensorShape::matrixWidth() {
     return -1;
 }
 
-TensorShape TensorShape::transposedCopy() {
+TensorShape TensorShape::transposed() {
     // Swap last two dimensions
     if(ndims() == 1) return  TensorShape(x);
     if(ndims() == 2) return TensorShape(y, x, 0, 0);
@@ -57,23 +57,57 @@ std::string TensorShape::toString() {
     return ss.str();
 }
 
+///// Tensor constructors
+
 Tensor::Tensor(Device device, TensorShape shape):
     id(++Tensor::nextId),
     device(device),
 	shape(shape),
-	value(NULL)
+    isShallowCopy(false),
+    value(nullptr),
+    referenceCount(nullptr)
 {
+    referenceCount = new int;
+    *referenceCount = 1;
 	if(device == CPU)
 	{
-        if(this->dataLength() > 0) {
-            value = (float *) malloc(this->dataLength() * sizeof(float));
+        if(dataLength() > 0) {
+            value = (float *) malloc(dataLength() * sizeof(float));
         }
 	}
 	else if(device == GPU)
 	{
-		// 🚧🚧🚧 
+		// cudaMalloc
 	}
 }
+
+Tensor::~Tensor() {
+    *referenceCount -= 1;
+    if(*referenceCount == 0) {
+        if(device == CPU) {
+            if(value != NULL)
+                free(value);
+                value = NULL;
+        }
+        if(device == GPU) {
+            // deallocate on CUDA
+        }
+        delete referenceCount;
+    }
+}
+
+Tensor::Tensor(const Tensor& copyObj) :
+    id(copyObj.id),
+    referenceCount(copyObj.referenceCount),
+    device(copyObj.device),
+    shape(copyObj.shape),
+    isShallowCopy(true),
+    value(copyObj.value)
+{
+    *referenceCount += 1;
+}
+
+///// Tensor member functions
 
 void Tensor::move(Device newDevice)
 {
@@ -90,20 +124,6 @@ void Tensor::move(Device newDevice)
 
 }
 
-
-Tensor::~Tensor() 
-{
-	if(value != NULL) {
-		if(device == CPU){
-			free(value);
-		}
-			
-		if(device == GPU){
-			// 🚧🚧🚧 
-		}
-	}
-}
-
 int Tensor::dataLength()
 {
 	int len = shape.x;
@@ -111,6 +131,11 @@ int Tensor::dataLength()
     if(shape.z != 0) len *= shape.z;
     if(shape.w != 0) len *= shape.w;
 	return len;
+}
+
+float* Tensor::data()
+{
+    return value;
 }
 
 TensorShape Tensor::getShape()
@@ -155,7 +180,7 @@ std::string Tensor::toString(){
             ss << "[";
             for(int j = 0; j < lastDimSize; j++){
                 int idx = i * lastDimSize + j;
-                ss << value[idx];
+                ss << data()[idx];
                 if(j != lastDimSize - 1) ss << ", ";
             }
 
@@ -180,3 +205,9 @@ Device Tensor::getDevice()
 {
     return device;
 }
+
+float Tensor::item()
+{
+    return data()[0];
+}
+
