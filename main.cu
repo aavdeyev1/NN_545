@@ -46,7 +46,7 @@ int main()
         {
             input[k] = i;
             input[k + 1] = j;
-            output[ceil(k / 2)] = indata[i][j];
+            output[(int)ceil(k / 2)] = indata[i][j];
             k ++;
         }
 
