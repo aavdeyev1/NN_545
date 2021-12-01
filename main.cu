@@ -101,8 +101,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         block.x = 32;
         block.y = 32;
-        grid.x  = ceil( (float)numCols / block.x );
-        grid.y  = ceil( (float)numRows / block.y );
+        grid.x  = ceil( (float)numTrainSample_ / block.x );
+        grid.y  = 1;
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
         cudaMemcpy( h_input, d_input, bytes, cudaMemcpyDeviceToHost );
@@ -113,8 +113,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         cudaFree( d_input );
         cudaFree( d_output );
 
-        printArray(input, numTrainSample_, numIn_, 1);
-        printArray(output, 1, numTrainSample_, 1);
+        printArray(h_input, numTrainSample_, numIn_, 1);
+        printArray(h_output, 1, numTrainSample_, 1);
         
     // for each training interation in maxNumTrainIterations
     // for each training pair k:
