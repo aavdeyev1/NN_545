@@ -45,7 +45,6 @@ int main()
         for(j = 0; j< 8; j++)
         {
             input[k*numIn_] = i;
-            k ++;
             input[k*numIn_ + 1] = j;
             output[(int)ceil(k / 2)] = indata[i][j];
             k ++;
