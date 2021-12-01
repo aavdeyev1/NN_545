@@ -96,18 +96,15 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         int *h_input=0, *h_output=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (int *)malloc(numOut_*numTrainSample_*sizeof(int));
-        // error vector:
-
-        printArray(trainData, numTrainSample_, numIn_, 1);
-        printArray(trueOut, numOut_, numTrainSample_, 1);
+        // error vector
 
         // Allocate dev mem
         int *d_input=0, *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) ) );
 
-        checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
-        checkCudaErrors( cudaMemcpy( d_output, trueOut, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
+        checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
+        checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_, cudaMemcpyHostToDevice) );
 
         dim3 grid, block;
 
@@ -129,16 +126,18 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         cudaFree( d_output );
         
     // for each training interation in maxNumTrainIterations
+
+    // update weights
+
     // for each training pair k:
 
-        // input[0] = trainData[k*numIn_];
-        // input[1] = trainData[k*numIn_ + 1];
+
 
 
         // kernel call: 1 per input
-        // inputs: trainDataInput vector, length numIn
+        // inputs: trainDataInput vector
         //  trueOut vector, length numOut
-        // numH
+        //  hidden weights H
 
         
 
