@@ -102,6 +102,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         int *d_input=0, *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) ) );
+        printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
         checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_, cudaMemcpyHostToDevice) );
