@@ -104,7 +104,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) ) );
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
-        ccheckCudaErrors( udaMemcpy( d_output, trueOut, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
+        checkCudaErrors( cudaMemcpy( d_output, trueOut, numIn_*numTrainSample_, cudaMemcpyHostToDevice) );
 
         dim3 grid, block;
 
