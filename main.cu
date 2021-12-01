@@ -112,7 +112,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         block.x = 32;
         block.y = 32;
         grid.x  = ceil( (float)numTrainSample_ / block.x );
-        grid.y  = 1;
+        grid.y  = ceil( (float)numTrainSample_ / block.y );
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_, cudaMemcpyDeviceToHost ) );
