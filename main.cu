@@ -24,7 +24,7 @@ using namespace std;
 
 void printArray(int *arr, int rows, int cols, int shouldPrint);
 __global__ void kernel4( int *input, int *output, int numIn, int numPairs );
-
+void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,float (*pLogisticFun)(float));
 
 int main()
 {
@@ -57,7 +57,7 @@ int main()
     printArray(input, numTrainSample_, numIn_, 1);
     printArray(output, 1, numTrainSample_, 1);
 
-    training(input, output, numTrainSample,0.02f,1l,fxGPU);
+    training(input, output, numTrainSample_,0.02f,1l,fxGPU);
 
 
     // bpNeuralNetwork<int> myBPNN;
