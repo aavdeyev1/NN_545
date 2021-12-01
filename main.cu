@@ -222,8 +222,8 @@ __global__ void kernel4( int *input, int *output, int numIn, int numPairs )
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
     int idx = iy*numIn + ix;
-    if (ix < numIn)
-        output[idx] = threadIdx.x + blockDim.x*threadIdx.y;
+    if (ix < numPairs)
+        output[idx] = threadIdx.x;
     
 }
 
