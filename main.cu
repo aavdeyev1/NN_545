@@ -98,6 +98,9 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         h_output = (int *)malloc(numOut_*numTrainSample_*sizeof(int));
         // error vector:
 
+        printArray(trainData, numTrainSample_, numIn_, 1);
+        printArray(trueOut, numOut_, numTrainSample_, 1);
+
         // Allocate dev mem
         int *d_input=0, *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
