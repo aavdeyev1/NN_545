@@ -22,7 +22,7 @@ using namespace std;
 
 #define numTrainingPair_ 64
 
-void printArray(float *arr, int rows, int cols, int shouldPrint);
+void printArray(int *arr, int rows, int cols, int shouldPrint);
 
 int main()
 {
