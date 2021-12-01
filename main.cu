@@ -50,7 +50,7 @@ int main()
             k ++;
         }
 
-    printArray(input, numIn_, numTrainingPair_, 1);
+    printArray(input, numTrainingPair_, numIn_, 1);
     printArray(output, 1, numTrainingPair_, 1);
 
     // bpNeuralNetwork<int> myBPNN;
