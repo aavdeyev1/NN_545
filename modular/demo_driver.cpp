@@ -29,7 +29,7 @@ void demoCaliforniaHousingDataset(Device device)
     CSVTrainTestDataLoader loader(xTrainPath, xTestPath, yTrainPath, yTestPath);
     loader.loadAll();
 
-    InputLayer layer1("Input", device, batch.getInputsShape());
+    InputLayer layer1("Input", device, batchInputsShape);
     LinearLayer layer2("Linear1", &layer1, 8);
     SigmoidLayer layer3("Sigmoid1", &layer2);
     LinearLayer layer4("Linear2", &layer3, 8);
@@ -50,8 +50,8 @@ void demoCaliforniaHousingDataset(Device device)
 
 
     loader.loadTrainingBatch(batch);
-    layer1.setData(batch.getInputs());
-    outputLayer.setTargets(batch.getTargets());
+    layer1.setData(batch.getX());
+    outputLayer.setTargets(batch.getY());
 
     layer1.forward();
     MSELoss = outputLayer.output.item();

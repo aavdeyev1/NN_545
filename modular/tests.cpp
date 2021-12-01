@@ -11,6 +11,7 @@ void runAllTests(Device testDevice)
     testCSVLoader();
     testGetTrainBatch();
     testNumTokens();
+    testCsvReader();
 }
 
 void testAddTensors(Device testDevice)
@@ -194,12 +195,26 @@ void testGetTrainBatch()
 
     CSVTrainTestDataLoader loader(xTrainPath, xTestPath, yTrainPath, yTestPath);
     loader.loadAll();
+
+    std::cout << "Shape of training inputs: " << loader.xTrain->getShape().toString() << std::endl;
+    std::cout << "Shape of training targets: " << loader.yTrain->getShape().toString() << std::endl;
+
+    std::cout << "Value of data at index 8695: ";
+    for(int i = 0; i < 8; i++)
+        std::cout << loader.xTrain->data()[8695 + i] << " ";
+    std::cout << std::endl;
     loader.loadTrainingBatch(batch);
 
+
+    std::cout << "Indexes of batch: ";
+    for(int i = 0; i < batch.idxs.size(); i++)
+        std:: cout << batch.idxs[i] << " ";
+    std::cout << std::endl;
+
     std::cout << "Test training batch: " << std::endl << "Inputs:" << std::endl;
-    std::cout << batch.getInputs().toString() << std::endl;
+    std::cout << batch.getX().toString() << std::endl;
     std::cout << "Targets:" << std::endl;
-    std::cout << batch.getTargets().toString() << std::endl;
+    std::cout << batch.getY().toString() << std::endl;
 }
 
 void testTensorCopyConstructorHelper(Tensor t2)
@@ -221,4 +236,13 @@ void testNumTokens() {
 
     if(!pass) std::cout << "testNumTokens failed." << std::endl;
     else std::cout << "testNumTokens passed." << std::endl;
+}
+
+void testCsvReader()
+{
+    std::string path = "datasets/test.csv";
+    Tensor * testTensor = new Tensor(CPU, {4, 3});
+    loadCSVCells(path, testTensor);
+    std::cout << "Test read in of CSV:" << testTensor->toString() << std::endl;
+    delete testTensor;
 }

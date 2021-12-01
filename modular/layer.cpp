@@ -94,8 +94,7 @@ LinearLayer::LinearLayer(std::string name, Layer * inputLayer, int outputDim) :
 
 void LinearLayer::initWeights() {
     // Set weights using Glorot Uniform initialization
-
-
+    
     int featuresIn = weights.getShape().matrixHeight();
     int featuresOut =  weights.getShape().matrixWidth();
 

@@ -29,3 +29,5 @@ void testTensorCopyConstructorHelper(Tensor t2);
 void testTensorCopyConstructor(Device testDevice);
 
 void testNumTokens();
+
+void testCsvReader();

@@ -1,30 +1,41 @@
 #include "dataloader.h"
 
-TrainBatch::TrainBatch(TensorShape inputsShape, TensorShape targetsShape):
-inputs(CPU, inputsShape),
-targets(CPU, targetsShape) {}
+TrainBatch::TrainBatch(TensorShape XShape, TensorShape YShape):
+idxs(XShape.x),
+X(CPU, XShape),
+Y(CPU, YShape) {
+    if(XShape.x != YShape.x) {
+        throw std::runtime_error("X and Y tensors do not match on batch dimension.");
+    }
 
-Tensor TrainBatch::getInputs() {
-    return inputs;
 }
 
-Tensor TrainBatch::getTargets() {
-    return targets;
+Tensor TrainBatch::getX() {
+    return X;
 }
 
-TensorShape TrainBatch::getInputsShape(){
-    return inputs.getShape();
+Tensor TrainBatch::getY() {
+    return Y;
 }
 
-TensorShape TrainBatch::getTargetsShape(){
-    return targets.getShape();
+TensorShape TrainBatch::getXShape(){
+    return X.getShape();
+}
+
+TensorShape TrainBatch::getYShape(){
+    return Y.getShape();
 }
 
 CSVTrainTestDataLoader::CSVTrainTestDataLoader(std::string xTrainPath, std::string xTestPath, std::string yTrainPath, std::string yTestPath) :
 xTrainPath(xTrainPath),
 xTestPath(xTestPath),
 yTrainPath(yTrainPath),
-yTestPath(yTestPath) {
+yTestPath(yTestPath),
+xTrain(nullptr),
+yTrain(nullptr),
+xTest(nullptr),
+yTest(nullptr)
+{
     xNumFeatures = getNumColsInFirstRowOfFile(xTrainPath);
     xNumTrainRows = getNumNonBlankLinesInFile(xTrainPath, xNumFeatures);
     xNumTestRows = getNumNonBlankLinesInFile(xTestPath, xNumFeatures);
@@ -42,17 +53,24 @@ yTestPath(yTestPath) {
         exit(1);
     }
 
-    xTrain.reset(new Tensor(CPU, {xNumTrainRows, xNumFeatures}));
-    yTrain.reset(new Tensor(CPU, {yNumTrainRows, yNumFeatures}));
-    xTest.reset(new Tensor(CPU, {xNumTestRows, xNumFeatures}));
-    yTest.reset(new Tensor(CPU, {yNumTestRows, yNumFeatures}));
+    xTrain =new Tensor(CPU, {xNumTrainRows, xNumFeatures});
+    yTrain =new Tensor(CPU, {yNumTrainRows, yNumFeatures});
+    xTest =new Tensor(CPU, {xNumTestRows, xNumFeatures});
+    yTest =new Tensor(CPU, {yNumTestRows, yNumFeatures});
+}
+
+CSVTrainTestDataLoader::~CSVTrainTestDataLoader(){
+    if(xTrain != nullptr) delete xTrain;
+    if(yTrain != nullptr) delete yTrain;
+    if(xTest != nullptr) delete xTest;
+    if(yTest != nullptr) delete yTest;
 }
 
 void CSVTrainTestDataLoader::loadAll() {
-    loadCSVCells(xTrainPath, xTrain.get());
-    loadCSVCells(yTrainPath, yTrain.get());
-    loadCSVCells(xTestPath, xTest.get());
-    loadCSVCells(yTestPath, yTest.get());
+    loadCSVCells(xTrainPath, xTrain);
+    loadCSVCells(yTrainPath, yTrain);
+    loadCSVCells(xTestPath, xTest);
+    loadCSVCells(yTestPath, yTest);
 }
 
 int getNumNonBlankLinesInFile(std::string path, int expectedCols)
@@ -111,9 +129,11 @@ int numTokens(std::string str)
 
 void loadCSVCells(std::string path, Tensor * out)
 {
-    float parsedToken;
     std::ifstream in(path);
+    if(!in.is_open()) throw std::runtime_error("Could not open file");
+
     std::string line;
+    std::string token;
 
     if(out->ndims() != 2) {
         std::cout << "ERROR: CSV file needs to be loaded into a 2D tensor." << std::endl;
@@ -122,91 +142,33 @@ void loadCSVCells(std::string path, Tensor * out)
 
     int tokenIdx = 0;
 
-    int nRows = out->getShape().x;
-    int nCols = out->getShape().y;
-
-    int col = 0;
-    int row = 0;
     while ( std::getline(in, line) )
     {
-        col = 0;
-        while(line.length() == 0)
-        {
-            getline(in, line);
-        }
-        int tokenStart = 0;
-        int tokenEnd = 0;
-        for(int i = 0; i < line.length() - 1; i++) {
-            if(line.at(i) == ',') {
-                tokenEnd = i - 1;
-                if(tokenEnd - tokenStart >= 1) {
-                    parsedToken = std::stof(line.substr(tokenStart, tokenEnd - tokenStart));
-                    if(tokenIdx < out->dataLength()) {
-                        out->data()[tokenIdx] = parsedToken;
-                    } else {
-                        std::cout << "ERROR: Too many tokens in input file while loading CSV." << std::endl;
-                        exit(1);
-                    }
-                    tokenIdx += 1;
-                }
-                tokenStart = i + 1;
-            }
-        }
-        tokenEnd = line.length() - 1;
-        if(tokenEnd - tokenStart >= 1 && line.at(tokenEnd != ',')) {
-            out->data()[tokenIdx] = std::stof(line.substr(tokenStart, tokenEnd - tokenStart));
+        std::stringstream ss(line);
+        while( std::getline(ss, token, ',')){
+            out->data()[tokenIdx] = std::stof(token);
+            tokenIdx++;
         }
 
-        row++;
     }
-}
-
-std::vector<int> generateIdxs(int numIdxs, int numRows)
-{
-    //https://stackoverflow.com/questions/21516575/fill-a-vector-with-random-numbers-c
-    std::random_device rnd_device;
-    // Specify the engine and distribution.
-    std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
-    std::uniform_int_distribution<int> dist {0, numRows};
-
-    auto gen = [&dist, &mersenne_engine](){
-        return dist(mersenne_engine);
-    };
-
-    std::vector<int> vec(numIdxs);
-    std::generate(begin(vec), end(vec), gen);
-    return vec;
 }
 
 void CSVTrainTestDataLoader::loadTrainingBatch(TrainBatch &batch) {
     // todo: this code is broken.
-    int batchSize = batch.getInputsShape().x;
-    int datasetSize = xTrain->getShape().matrixHeight();
+    int batchSize = batch.getXShape().x;
+    int datasetSize = xTrain->getShape().x;
     int numInputFeatures = xTrain->getShape().y;
     int numTargetFeatures = yTrain->getShape().y;
 
-    std::vector<int> trainIdxs = generateIdxs(batchSize, datasetSize);
+    for(int i = 0; i < batchSize; i++) {
+        int idx = std::rand() % datasetSize;
+        batch.idxs[i] = idx;
 
-    float * inputsSourcePtr;
-    float * targetsSourcePtr;
-
-    float * inputsBatchPtr = batch.getInputs().data();
-    float * targetsBatchPtr = batch.getTargets().data();
-
-    for(int i = 0; i < trainIdxs.size(); i++) {
-        // int idx = trainIdxs.at(i); // todo fixme
-        int idx = i;
-        inputsSourcePtr = &xTrain->data()[idx * numInputFeatures];
-        targetsSourcePtr = &yTrain->data()[idx * numTargetFeatures];
         for(int j = 0; j < numInputFeatures; j++) {
-            *inputsBatchPtr = *inputsSourcePtr;
-            inputsBatchPtr++;
-            inputsSourcePtr++;
+            batch.getX().data()[i * numInputFeatures + j] = xTrain->data()[idx * numInputFeatures + j];
         }
         for(int j = 0; j < numTargetFeatures; j++) {
-            *targetsBatchPtr = *targetsSourcePtr;
-            targetsBatchPtr++;
-            targetsSourcePtr++;
+            batch.getY().data()[i * numTargetFeatures + j] = yTrain->data()[idx * numTargetFeatures + j];
         }
     }
 }

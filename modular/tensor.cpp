@@ -87,7 +87,7 @@ Tensor::~Tensor() {
         if(device == CPU) {
             if(value != NULL)
                 free(value);
-                value = NULL;
+                //value = NULL;
         }
         if(device == GPU) {
             // deallocate on CUDA
@@ -210,4 +210,3 @@ float Tensor::item()
 {
     return data()[0];
 }
-

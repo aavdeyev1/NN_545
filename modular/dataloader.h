@@ -10,19 +10,21 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <string.h>
 #include "tensor.h"
 
 struct TrainBatch
 {
 private:
-    Tensor inputs;
-    Tensor targets;
+    Tensor X;
+    Tensor Y;
 public:
-    TrainBatch(TensorShape inputsShape, TensorShape outputsShape);
-    TensorShape getInputsShape();
-    TensorShape getTargetsShape();
-    Tensor getInputs();
-    Tensor getTargets();
+    std::vector<int> idxs;
+    TrainBatch(TensorShape XShape, TensorShape YShape);
+    TensorShape getXShape();
+    TensorShape getYShape();
+    Tensor getX();
+    Tensor getY();
 };
 
 class CSVTrainTestDataLoader
@@ -36,11 +38,12 @@ private:
     int yNumFeatures;
 
 public:
+    ~CSVTrainTestDataLoader();
     std::string xTrainPath, xTestPath, yTrainPath, yTestPath;
-    std::unique_ptr<Tensor> xTrain;
-    std::unique_ptr<Tensor> xTest;
-    std::unique_ptr<Tensor> yTrain;
-    std::unique_ptr<Tensor> yTest;
+    Tensor* xTrain;
+    Tensor* xTest;
+    Tensor* yTrain;
+    Tensor* yTest;
 
     CSVTrainTestDataLoader(std::string xTrainPath, std::string xTestPath, std::string yTrainPath, std::string yTestPath);
     void loadAll();
@@ -51,9 +54,6 @@ public:
 Tensor* CSVRowsToTensor(const std::vector<std::vector<std::string>> &cells);
 
 void loadCSVCells(std::string path, Tensor*  out);
-
-std::vector<int> generateIdxs(int numIdxs, int numRows);
-
 int getNumColsInFirstRowOfFile(std::string path);
 
 int getNumNonBlankLinesInFile(std::string path, int expectedCols);
