@@ -156,14 +156,7 @@ template <class T> class bpNeuralNetwork
 		//copy indata_ to GPU
 		//copy wHidden_ to GPU
 
-		int *d_a;
-		int *d_c;
-
-		//move this up
-		cudaMalloc(&d_a, indata_*sizeOf(int));
-
-		//need to linearize wHidden
-		cudaMalloc(&d_c, wHidden_*sizeOf(int));
+		
 
 		
 		for(iterate = 1; iterate <= maxNumTrainIterate; iterate ++)
