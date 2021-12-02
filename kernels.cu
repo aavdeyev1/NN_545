@@ -65,10 +65,10 @@ int main() {
     hostA[1] = 2.0;
     hostB[0] = 1.0;
     hostB[1] = 2.0;
-    hostB[3] = 3.0;
-    hostB[4] = 1.0;
-    hostB[5] = 2.0;
-    hostB[6] = 3.0;
+    hostB[2] = 3.0;
+    hostB[3] = 1.0;
+    hostB[4] = 2.0;
+    hostB[5] = 3.0;
 
     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
