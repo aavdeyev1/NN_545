@@ -71,8 +71,8 @@ int main() {
     MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , deviceC , ARows , ACols, BRows ,BCols , CRows , CCols);
 
     cudaMemcpy(hostC, deviceC, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
-    printArray(A, DIMX, DIMY, 1);
-    printArray(B, DIMY, DIMZ, 1);
+    printArray(hostA, DIMX, DIMY, 1);
+    printArray(hostB, DIMY, DIMZ, 1);
     printArray(hostC, DIMX, DIMZ, 1);
 
     return 0;
