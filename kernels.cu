@@ -14,9 +14,9 @@
 #include "device_launch_parameters.h"
 
 #define TILE_DIM 4                     // Tile dimension
-#define DIMX 32                            
-#define DIMY 31
-#define DIMZ 30
+#define DIMX 5                            
+#define DIMY 6
+#define DIMZ 7
 
 void printArray(float *arr, int rows, int cols, int shouldPrint);
 
