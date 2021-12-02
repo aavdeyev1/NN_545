@@ -26,8 +26,6 @@ using namespace std;
 
 #define numTrainSample_ 64
 
-void printArray(int *arr, int rows, int cols, int shouldPrint);
-__global__ void kernel4( int *input, int *output, int numIn, int numPairs );
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,float (*pLogisticFun)(float));
 
 int main()
@@ -222,22 +220,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 	// }// end for training
 
 
-}
-
-__global__ void kernel4( int *input, int *output, int numIn, int numPairs )
-{ // Done
-    int ix   = blockIdx.x*blockDim.x + threadIdx.x;
-    int iy   = blockIdx.y*blockDim.y + threadIdx.y;
-    int idx = iy*numIn + ix;
-    // if (ix < numPairs)
-    output[idx] = 1;
-    
-}
-
-//the transfer function used by neural network
-__device__ float fxGPU(float x)
-{
-	return (float)(1.0f / (1 + exp((float)(x * (-1)))));
 }
 
 void printArray(int *arr, int rows, int cols, int shouldPrint){

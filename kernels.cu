@@ -24,7 +24,7 @@ void printArray(float *arr, int rows, int cols, int shouldPrint);
 // b (n * k)
 // c (m * k)
 
-__global__ void MatMulNoShared(float* a, float* b, float* ab, int m, int n, int k) {
+__global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int n, int k) {
 
     int Row = blockIdx.y*blockDim.y+threadIdx.y;
 
@@ -43,54 +43,70 @@ __global__ void MatMulNoShared(float* a, float* b, float* ab, int m, int n, int 
     ab[(Row*k)+Col]=Pvalue;
 }
 
-int main() {
-
-    int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, BRows=DIMY, Bcols=DIMZ;
-
-    dim3 dimBlock(TILE_DIM, TILE_DIM, 1);
-    dim3 dimGrid;
-
-    dimGrid.x = (ccols + dimBlock.x - 1)/dimBlock.x;
-    dimGrid.y = (cRows + dimBlock.y - 1)/dimBlock.y;
-
-    float *deviceA, *deviceB, *devicec;
-
-    float* hostA    = (float*)malloc(DIMX*DIMY*sizeof(float));
-    float* hostB    = (float*)malloc(DIMY*DIMZ*sizeof(float));
-    float* hostc    = (float*)malloc(DIMX*DIMZ*sizeof(float));
-    float* hostcp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
-
-    // for (int x = 0; x<DIMX; x++)
-    //     for (int y = 0; y<DIMY; y++) {
-    //         hostA[x*DIMY+y] = rand()/(float)RAND_MAX;
-    //         hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
-    //     }
-
-    hostA[0] = 1.0;
-    hostA[1] = 2.0;
-    hostB[0] = 1.0;
-    hostB[1] = 2.0;
-    hostB[2] = 3.0;
-    hostB[3] = 1.0;
-    hostB[4] = 2.0;
-    hostB[5] = 3.0;
-
-    cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
-    cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
-    cudaMalloc((void **)&devicec, DIMX*DIMZ*sizeof(float));
-
-    cudaMemcpy(deviceA, hostA, DIMX*DIMY*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(deviceB, hostB, DIMY*DIMZ*sizeof(float), cudaMemcpyHostToDevice);
-
-    MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Bcols);
-
-    cudaMemcpy(hostc, devicec, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
-    printArray(hostA, DIMX, DIMY, 1);
-    printArray(hostB, DIMY, DIMZ, 1);
-    printArray(hostc, DIMX, DIMZ, 1);
-
-    return 0;
+__global__ void kernel4( int *input, int *output, int numIn, int numPairs )
+{ // Done
+    int ix   = blockIdx.x*blockDim.x + threadIdx.x;
+    int iy   = blockIdx.y*blockDim.y + threadIdx.y;
+    int idx = iy*numIn + ix;
+    // if (ix < numPairs)
+    output[idx] = 1;
+    
 }
+
+//the transfer function used by neural network
+__device__ float fxGPU(float x)
+{
+	return (float)(1.0f / (1 + exp((float)(x * (-1)))));
+}
+
+// int main() {
+
+//     int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, BRows=DIMY, Bcols=DIMZ;
+
+//     dim3 dimBlock(TILE_DIM, TILE_DIM, 1);
+//     dim3 dimGrid;
+
+//     dimGrid.x = (ccols + dimBlock.x - 1)/dimBlock.x;
+//     dimGrid.y = (cRows + dimBlock.y - 1)/dimBlock.y;
+
+//     float *deviceA, *deviceB, *devicec;
+
+//     float* hostA    = (float*)malloc(DIMX*DIMY*sizeof(float));
+//     float* hostB    = (float*)malloc(DIMY*DIMZ*sizeof(float));
+//     float* hostc    = (float*)malloc(DIMX*DIMZ*sizeof(float));
+//     float* hostcp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
+
+//     // for (int x = 0; x<DIMX; x++)
+//     //     for (int y = 0; y<DIMY; y++) {
+//     //         hostA[x*DIMY+y] = rand()/(float)RAND_MAX;
+//     //         hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
+//     //     }
+
+//     hostA[0] = 1.0;
+//     hostA[1] = 2.0;
+//     hostB[0] = 1.0;
+//     hostB[1] = 2.0;
+//     hostB[2] = 3.0;
+//     hostB[3] = 1.0;
+//     hostB[4] = 2.0;
+//     hostB[5] = 3.0;
+
+//     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
+//     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
+//     cudaMalloc((void **)&devicec, DIMX*DIMZ*sizeof(float));
+
+//     cudaMemcpy(deviceA, hostA, DIMX*DIMY*sizeof(float), cudaMemcpyHostToDevice);
+//     cudaMemcpy(deviceB, hostB, DIMY*DIMZ*sizeof(float), cudaMemcpyHostToDevice);
+
+//     matrix_multiply_simple<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Bcols);
+
+//     cudaMemcpy(hostc, devicec, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
+//     printArray(hostA, DIMX, DIMY, 1);
+//     printArray(hostB, DIMY, DIMZ, 1);
+//     printArray(hostc, DIMX, DIMZ, 1);
+
+//     return 0;
+// }
 
 
 void printArray(float *arr, int rows, int cols, int shouldPrint){
