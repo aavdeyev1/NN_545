@@ -128,7 +128,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         
     // for each training interation in maxNumTrainIterations
 
-    // update weights
+    // update weights KERNEL!
 
     // for each training pair k:
 

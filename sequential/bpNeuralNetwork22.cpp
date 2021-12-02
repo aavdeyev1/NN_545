@@ -299,6 +299,7 @@ float fx(float x)
 	return (float)(1.0f / (1 + exp(x * (-1))));
 }
 
+
 // mytrim to make the result a precision of 3 digit
 float mytrim(float x)
 {
