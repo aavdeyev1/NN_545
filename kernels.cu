@@ -8,38 +8,6 @@
 
 //This Kernel will be dedicated to updating the weights and biases for one batch
 
-#define TILE_WIDTH 16
-
-__global__ void matrix_multiply_simple(float *a, float *b, float *ab, int Width)
-{
-    //TODO: write the kernel to perform matrix a times b, store results into ab.
-    // width is the size of the square matrix along one dimension.
-
-    __shared__ float Mds[TILE_WIDTH][TILE_WIDTH];
-    __shared__ float Nds[TILE_WIDTH][TILE_WIDTH];
-
-    int bx = blockIdx.x; int by = blockIdx.y;
-    int tx = threadIdx.x; int ty = threadIdx.y;
-
-    int Row = blockIdx.y*blockDim.y+threadIdx.y;
-    int Col = blockIdx.x*blockDim.x+threadIdx.x;
-
-    float Pvalue = 0;
-    for (int m = 0; m < Width/TILE_WIDTH; ++m) {
-        Mds[ty][tx] = M[Row*Width + p*TILE_WIDTH+tx];
-        Nds[ty][tx] = N[(m*TILE_WIDTH+TY)*Width+Col];
-        __syncthreads();
-
-        float Pvalue = 0;
-        for(int k=0; k < TILE_WIDTH; ++k) 
-            Pvalue += Mds[ty][k]*Nds[k][tx];
-        __syncthreads();
-            
-      }
-      ab[Row*width+Col] = Pvalue;
-    }
-}
-
 #include <stdio.h>
 #include <math.h>
 #include "cuda_runtime.h"
