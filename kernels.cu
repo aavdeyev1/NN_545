@@ -40,12 +40,12 @@ __global__ void MatMulNoShared(float* a, float* b, float* ab, int m, int n, int 
                 Pvalue += a[Row*n + i*TILE_DIM + p] * b[(i*TILE_DIM + p)*k + Col];
         }
     }
-    c[(Row*m)+Col]=Pvalue;
+    ab[(Row*m)+Col]=Pvalue;
 }
 
 int main() {
 
-    int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, Bcols=DIMZ, Acols=DIMY;
+    int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, BRows=DIMY, Bcols=DIMZ;
 
     dim3 dimBlock(TILE_DIM, TILE_DIM, 1);
     dim3 dimGrid;
