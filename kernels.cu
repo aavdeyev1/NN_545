@@ -79,7 +79,7 @@ int main() {
 }
 
 
-void printArray(int *arr, int rows, int cols, int shouldPrint){
+void printArray(float *arr, int rows, int cols, int shouldPrint){
     if (!shouldPrint)
        return;
            
