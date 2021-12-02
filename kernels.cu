@@ -18,7 +18,7 @@
 #define DIMY 2
 #define DIMZ 3
 
-void printArray(int *arr, int rows, int cols, int shouldPrint);
+void printArray(float *arr, int rows, int cols, int shouldPrint);
 
 __global__ void MatMulNoShared(float* A, float* B, float* C, int ARows, int ACols, int BRows, int BCols, int CRows, int CCols) {
 
@@ -61,14 +61,14 @@ int main() {
     //         hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
     //     }
 
-    hostA[0] = 1;
-    hostA[1] = 2;
-    hostB[0] = 1;
-    hostB[1] = 2;
-    hostB[3] = 3;
-    hostB[4] = 1;
-    hostB[5] = 2;
-    hostB[6] = 3;
+    hostA[0] = 1.0;
+    hostA[1] = 2.0;
+    hostB[0] = 1.0;
+    hostB[1] = 2.0;
+    hostB[3] = 3.0;
+    hostB[4] = 1.0;
+    hostB[5] = 2.0;
+    hostB[6] = 3.0;
 
     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
@@ -88,7 +88,7 @@ int main() {
 }
 
 
-void printArray(int *arr, int rows, int cols, int shouldPrint){
+void printArray(float *arr, int rows, int cols, int shouldPrint){
     if (!shouldPrint)
        return;
            
