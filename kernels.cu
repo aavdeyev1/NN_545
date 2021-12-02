@@ -13,10 +13,12 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-#define TILE_DIM 16                     // Tile dimension
-#define DIMX 373                            
-#define DIMY 242
-#define DIMZ 533
+#define TILE_DIM 4                     // Tile dimension
+#define DIMX 32                            
+#define DIMY 31
+#define DIMZ 30
+
+void printArray(int *arr, int rows, int cols, int shouldPrint);
 
 __global__ void MatMulNoShared(float* A, float* B, float* C, int ARows, int ACols, int BRows, int BCols, int CRows, int CCols) {
 
@@ -69,6 +71,27 @@ int main() {
     MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , deviceC , ARows , ACols, BRows ,BCols , CRows , CCols);
 
     cudaMemcpy(hostC, deviceC, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
+    printArray(A, DIMX, DIMY, 1);
+    printArray(B, DIMY, DIMZ, 1);
+    printArray(hostC, DIMX, DIMZ, 1);
 
     return 0;
 }
+
+
+void printArray(int *arr, int rows, int cols, int shouldPrint){
+    if (!shouldPrint)
+       return;
+           
+    int i,j;
+ 
+    for(i=0; i<rows; i++){
+       for(j=0; j<cols; j++){
+       
+          printf("%d ", arr[i*cols + j]);
+       }
+       printf("\n");
+    }
+ 
+    printf("\n");
+ }
