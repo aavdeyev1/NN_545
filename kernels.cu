@@ -18,7 +18,7 @@
 #define DIMY 31
 #define DIMZ 30
 
-void printArray(int *arr, int rows, int cols, int shouldPrint);
+void printArray(float *arr, int rows, int cols, int shouldPrint);
 
 __global__ void MatMulNoShared(float* A, float* B, float* C, int ARows, int ACols, int BRows, int BCols, int CRows, int CCols) {
 
