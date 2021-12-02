@@ -88,7 +88,7 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
     for(i=0; i<rows; i++){
        for(j=0; j<cols; j++){
        
-          printf("%d ", arr[i*cols + j]);
+          printf("%5.02f ", arr[i*cols + j]);
        }
        printf("\n");
     }
