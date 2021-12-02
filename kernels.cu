@@ -14,11 +14,11 @@
 #include "device_launch_parameters.h"
 
 #define TILE_DIM 4                     // Tile dimension
-#define DIMX 5                            
-#define DIMY 6
-#define DIMZ 7
+#define DIMX 1                            
+#define DIMY 2
+#define DIMZ 3
 
-void printArray(float *arr, int rows, int cols, int shouldPrint);
+void printArray(int *arr, int rows, int cols, int shouldPrint);
 
 __global__ void MatMulNoShared(float* A, float* B, float* C, int ARows, int ACols, int BRows, int BCols, int CRows, int CCols) {
 
@@ -55,11 +55,20 @@ int main() {
     float* hostC    = (float*)malloc(DIMX*DIMZ*sizeof(float));
     float* hostCp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
 
-    for (int x = 0; x<DIMX; x++)
-        for (int y = 0; y<DIMY; y++) {
-            hostA[x*DIMY+y] = rand()/(float)RAND_MAX;
-            hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
-        }
+    // for (int x = 0; x<DIMX; x++)
+    //     for (int y = 0; y<DIMY; y++) {
+    //         hostA[x*DIMY+y] = rand()/(float)RAND_MAX;
+    //         hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
+    //     }
+
+    hostA[0] = 1;
+    hostA[1] = 2;
+    hostB[0] = 1;
+    hostB[1] = 2;
+    hostB[3] = 3;
+    hostB[4] = 1;
+    hostB[5] = 2;
+    hostB[6] = 3;
 
     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
@@ -79,7 +88,7 @@ int main() {
 }
 
 
-void printArray(float *arr, int rows, int cols, int shouldPrint){
+void printArray(int *arr, int rows, int cols, int shouldPrint){
     if (!shouldPrint)
        return;
            
@@ -88,7 +97,7 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
     for(i=0; i<rows; i++){
        for(j=0; j<cols; j++){
        
-          printf("%5.02f ", arr[i*cols + j]);
+          printf("%d ", arr[i*cols + j]);
        }
        printf("\n");
     }
