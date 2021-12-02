@@ -42,7 +42,6 @@ __global__ void matrix_multiply_simple(float *a, float *b, float *ab, int Width)
 
 #include <stdio.h>
 #include <math.h>
-#include <conio.h>
 
 #define TILE_DIM 16                     // Tile dimension
 #define DIMX 373                            
