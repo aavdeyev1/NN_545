@@ -21,25 +21,26 @@
 void printArray(float *arr, int rows, int cols, int shouldPrint);
 
 // a (m * n)
-// b (n * p)
-// c (m * p)
+// b (n * k)
+// c (m * k)
 
-__global__ void MatMulNoShared(float* a, float* b, float* c, int ARows, int Acols, int Bcols, int cRows, int ccols) {
+__global__ void MatMulNoShared(float* a, float* b, float* ab, int m, int n, int k) {
 
-    float cValue = 0;
+    int Row = blockIdx.y*blockDim.y+threadIdx.y;
 
-    int Row = blockIdx.y*TILE_DIM + threadIdx.y;
-    int col = blockIdx.x*TILE_DIM + threadIdx.x;
+    int Col = blockIdx.x*blockDim.x+threadIdx.x;
 
-    for (int k = 0; k < (TILE_DIM + Acols - 1)/TILE_DIM; k++) {
+    if ((Row > m) || (Col > k)) return;
 
-        for (int n = 0; n < TILE_DIM; ++n) 
-            if ((k*TILE_DIM + n < Acols && Row < ARows) && (k*TILE_DIM + n < Acols && col < Bcols))
-                cValue += a[Row*Acols + k*TILE_DIM + n] * b[(k*TILE_DIM + n)*Bcols + col];
+    float Pvalue = 0;
+    for (int i = 0; i < (TILE_DIM + n - 1)/TILE_DIM; i++) {
 
+        for (int p = 0; p < TILE_DIM; ++p) {
+            if ((i*TILE_DIM + p < n && Row < m) && (i*TILE_DIM + p < n && Col < k))
+                Pvalue += a[Row*n + i*TILE_DIM + p] * b[(i*TILE_DIM + p)*k + Col];
+        }
     }
-
-    if (Row < cRows && col < ccols) c[((blockIdx.y * blockDim.y + threadIdx.y)*ccols)+(blockIdx.x*blockDim.x)+threadIdx.x]=cValue;
+    c[(Row*m)+Col]=Pvalue;
 }
 
 int main() {
@@ -81,7 +82,7 @@ int main() {
     cudaMemcpy(deviceA, hostA, DIMX*DIMY*sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceB, hostB, DIMY*DIMZ*sizeof(float), cudaMemcpyHostToDevice);
 
-    MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Acols ,Bcols , cRows , ccols);
+    MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Bcols);
 
     cudaMemcpy(hostc, devicec, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
     printArray(hostA, DIMX, DIMY, 1);
