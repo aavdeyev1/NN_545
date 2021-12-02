@@ -40,7 +40,7 @@ __global__ void MatMulNoShared(float* a, float* b, float* ab, int m, int n, int 
                 Pvalue += a[Row*n + i*TILE_DIM + p] * b[(i*TILE_DIM + p)*k + Col];
         }
     }
-    ab[(Row*m)+Col]=Pvalue;
+    ab[(Row*k)+Col]=Pvalue;
 }
 
 int main() {
