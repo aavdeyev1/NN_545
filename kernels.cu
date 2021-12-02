@@ -20,40 +20,44 @@
 
 void printArray(float *arr, int rows, int cols, int shouldPrint);
 
-__global__ void MatMulNoShared(float* A, float* B, float* C, int ARows, int ACols, int BRows, int BCols, int CRows, int CCols) {
+// a (m * n)
+// b (n * p)
+// c (m * p)
 
-    float CValue = 0;
+__global__ void MatMulNoShared(float* a, float* b, float* c, int ARows, int Acols, int Acols, int Bcols, int cRows, int ccols) {
+
+    float cValue = 0;
 
     int Row = blockIdx.y*TILE_DIM + threadIdx.y;
-    int Col = blockIdx.x*TILE_DIM + threadIdx.x;
+    int col = blockIdx.x*TILE_DIM + threadIdx.x;
 
-    for (int k = 0; k < (TILE_DIM + ACols - 1)/TILE_DIM; k++) {
+    for (int k = 0; k < (TILE_DIM + Acols - 1)/TILE_DIM; k++) {
 
         for (int n = 0; n < TILE_DIM; ++n) 
-            if ((k*TILE_DIM + n < ACols && Row < ARows) && (k*TILE_DIM + n < BRows && Col < BCols))
-                CValue += A[Row*ACols + k*TILE_DIM + n] * B[(k*TILE_DIM + n)*BCols + Col];
+            if ((k*TILE_DIM + n < Acols && Row < ARows) && (k*TILE_DIM + n < Acols && col < Bcols))
+                cValue += a[Row*Acols + k*TILE_DIM + n] * b[(k*TILE_DIM + n)*Bcols + col];
 
     }
 
-    if (Row < CRows && Col < CCols) C[((blockIdx.y * blockDim.y + threadIdx.y)*CCols)+(blockIdx.x*blockDim.x)+threadIdx.x]=CValue;
+    if (Row < cRows && col < ccols) c[((blockIdx.y * blockDim.y + threadIdx.y)*ccols)+(blockIdx.x*blockDim.x)+threadIdx.x]=cValue;
 }
 
 int main() {
 
-    int CCols = DIMZ, CRows=DIMX, ACols=DIMY, ARows=DIMX, BCols=DIMZ, BRows=DIMY;
+    int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, Bcols=DIMZ, Acols=DIMY;
 
     dim3 dimBlock(TILE_DIM, TILE_DIM, 1);
     dim3 dimGrid;
 
-    dimGrid.x = (CCols + dimBlock.x - 1)/dimBlock.x;
-    dimGrid.y = (CRows + dimBlock.y - 1)/dimBlock.y;
+    dimGrid.x = (ccols + dimBlock.x - 1)/dimBlock.x;
+    dimGrid.y = (cRows + dimBlock.y - 1)/dimBlock.y;
 
-    float *deviceA, *deviceB, *deviceC;
+    float *deviceA, *deviceB, *devicec;
 
     float* hostA    = (float*)malloc(DIMX*DIMY*sizeof(float));
     float* hostB    = (float*)malloc(DIMY*DIMZ*sizeof(float));
-    float* hostC    = (float*)malloc(DIMX*DIMZ*sizeof(float));
-    float* hostCp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
+    float* hostc    = (float*)malloc(DIMX*DIMZ*sizeof(float));
+    float* hostcp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
 
     // for (int x = 0; x<DIMX; x++)
     //     for (int y = 0; y<DIMY; y++) {
@@ -72,17 +76,17 @@ int main() {
 
     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
-    cudaMalloc((void **)&deviceC, DIMX*DIMZ*sizeof(float));
+    cudaMalloc((void **)&devicec, DIMX*DIMZ*sizeof(float));
 
     cudaMemcpy(deviceA, hostA, DIMX*DIMY*sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceB, hostB, DIMY*DIMZ*sizeof(float), cudaMemcpyHostToDevice);
 
-    MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , deviceC , ARows , ACols, BRows ,BCols , CRows , CCols);
+    MatMulNoShared<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Acols ,Bcols , cRows , ccols);
 
-    cudaMemcpy(hostC, deviceC, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(hostc, devicec, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
     printArray(hostA, DIMX, DIMY, 1);
     printArray(hostB, DIMY, DIMZ, 1);
-    printArray(hostC, DIMX, DIMZ, 1);
+    printArray(hostc, DIMX, DIMZ, 1);
 
     return 0;
 }
