@@ -44,7 +44,6 @@ __global__ void matrix_multiply_simple(float *a, float *b, float *ab, int Width)
 #include <math.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <helper_cuda.h>
 
 #define TILE_DIM 16                     // Tile dimension
 #define DIMX 373                            
