@@ -24,7 +24,7 @@ void printArray(float *arr, int rows, int cols, int shouldPrint);
 // b (n * p)
 // c (m * p)
 
-__global__ void MatMulNoShared(float* a, float* b, float* c, int ARows, int Acols, int Acols, int Bcols, int cRows, int ccols) {
+__global__ void MatMulNoShared(float* a, float* b, float* c, int ARows, int Acols, int Bcols, int cRows, int ccols) {
 
     float cValue = 0;
 
