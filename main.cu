@@ -169,7 +169,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		test[6] = 6.0;
 		test[7] = 7.0;
 		test[8] = 8.0;
-		test[9] = 9.0;
 
 		test[10] = 91.0;
 		test[11] = 92.0;
@@ -179,7 +178,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		test[15] = 96.0;
 		test[16] = 97.0;
 		test[17] = 98.0;
-		test[18] = 99.0;
 		printArray3D(test, numH_, numIn_+1, numTLayers, 1);
 
         free( h_input );
