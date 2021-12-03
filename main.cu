@@ -110,7 +110,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		blockSize = 1;
 		gridSize = 1;
 
-        float* test = (float *)malloc(numH_*(numIn_ + 1)*sizeof(float));
+        float* test = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 
         // Allocate host mem
         int *h_input=0;
