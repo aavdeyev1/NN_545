@@ -90,20 +90,50 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 		float mytrim(float);
 
+        // int* d_indata;
+		float* d_vHidden;
+		float* d_wHidden;
+		float* d_h;
+		float* d_vOut;
+		float* d_yError;
+		float* d_hError;
+		float* d_wOut;
+		float* d_result;
+
+		
+		
+		//setup block and grid size
+		int blockSize, gridSize;
+		blockSize = 1;
+		gridSize = 1;
+
+        float* test = (float *)malloc(numH_*sizeof(float));
+
         // Allocate host mem
-        int *h_input=0, *h_output=0;
+        int *h_input=0;
+        float *h_output=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
-        h_output = (int *)malloc(numOut_*numTrainSample_*sizeof(int));
+        h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
+        d_vHidden = (float *)malloc(numH_*sizeof(float));
+		// d_wHidden = (float *)malloc(numH_*(numIn_+1)*sizeof(float));
+		// d_h = (float *)malloc();
+		// float* d_vOut;
+		// float* d_yError;
+		// float* d_hError;
+		// float* d_wOut;
+		// float* d_result;
         // error vector
 
         // Allocate dev mem
         int *d_input=0, *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
-        checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(int) ) );
+        checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vHidden, numH*numTrainSample_*sizeof(float) ) );
+        // checkCudaErrors( cudaMalloc( &d_wHidden, numH*(numIn_ + 1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
-        checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
+        checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
 
         dim3 grid, block;
 
@@ -114,15 +144,20 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         
         kernel4<<<grid, block>>>(d_input, d_output, numIn_, numTrainSample_);
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+
+        checkCudaErrors( cudaMemcpy( test, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
 
         free( h_input );
         free( h_output );
+        free(test);
+        
         cudaFree( d_input );
         cudaFree( d_output );
+        cudaFree( d_vHidden );
         
     // for each training interation in maxNumTrainIterations
 
