@@ -55,7 +55,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
-    __shared__ float h[1] = 0;
+    extern __shared__ float h[];
+    h[0] = 0;
     int i,j,k;
     int cols = numIn + 1;
     int rows = numH;

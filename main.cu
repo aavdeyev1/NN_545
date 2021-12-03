@@ -172,7 +172,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         grid.x  = ceil( (float)numTrainSample_ / block.x );
         // grid.y  = ceil( (float)numTrainSample_ / block.y );
         
-        kernel<<<grid, block>>>(d_input,
+        kernel<<<grid, block, sizeof(float)>>>(d_input,
 								 d_output,
 								 d_vHidden,
 								 d_wHidden,
