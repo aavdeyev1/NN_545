@@ -141,7 +141,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[21] = 9.0;
 		testW[22] = 10.0;
 		testW[23] = 11.0;
-		printArray3D(testW, numH_, numIn_+1, numTLayers, 1);
+		printArray3D(testW, numH_ + 1, numIn_+1, numTLayers, 1);
 
         // Allocate host mem
         int *h_input=0;
@@ -211,7 +211,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printf("weights:\n");
 		printArray3D(h_W, numH_ + 1, numIn_+1, numTLayers, 1);
 		printf("vHidden:\n");
-		printArray(h_vHidden, numH_, numTLayers, 1);
+		printArray(h_vHidden, 1, numH_*numTLayers, 1);
 
         free( h_input );
         free( h_output );
