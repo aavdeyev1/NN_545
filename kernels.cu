@@ -169,7 +169,7 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 		for(i=0; i<cols; i++){
 			for(j=0; j<rows; j++){
 		
-				printf("%5.02f ", arr[k*cols*rows + j*cols + i]);
+				printf("%5.02f ", arr[k*cols*rows + i*rows + j]);
 			}
 			printf("\n");
    		}
