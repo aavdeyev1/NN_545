@@ -158,6 +158,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         int *d_input=0;
 		float *d_output=0;
 		float *d_vHidden=0;
+		float *d_wHidden=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*sizeof(float) ) );
