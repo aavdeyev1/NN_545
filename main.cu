@@ -168,8 +168,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         dim3 grid, block;
 
-        block.x = 32;
-        block.y = 32;
+        block.x = 4;
+        block.y = 4;
         grid.x  = ceil( (float)numTrainSample_ / block.x );
         grid.y  = ceil( (float)numTrainSample_ / block.y );
         
