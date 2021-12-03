@@ -142,7 +142,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         float *h_output=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
-        d_vHidden = (float *)malloc(numH_*sizeof(float));
+        h_vHidden = (float *)malloc(numH_*sizeof(float));
 		d_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
@@ -155,9 +155,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // Allocate dev mem
         int *d_input=0;
 		float *d_output=0;
+		float *d_vHidden=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
-        checkCudaErrors( cudaMalloc( &d_vHidden, numH_*numTrainSample_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vHidden, numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
@@ -193,14 +194,19 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
+		printf("weights:\n")
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
-		// printArray(testW, numH_, numIn_ + 1, 1);
+		printf("vHidden:\n");
+		printArray(h_vHidden, numH_, numH_, 1);
 
         free( h_input );
         free( h_output );
+		free( h_vHidden );
         free(testW);
 		free(h_W);
         
