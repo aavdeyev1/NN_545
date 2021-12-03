@@ -27,6 +27,7 @@ using namespace std;
 #define numTrainSample_ 64
 
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,float (*pLogisticFun)(float));
+void printArray(int *arr, int rows, int cols, int shouldPrint);
 
 int main()
 {
@@ -40,7 +41,7 @@ int main()
                             { 0,0,0,0, 0,1,1,1},
                             { 0,0,0,1, 1,1,1,1}
                         };
-    float fxGPU(float); // init activation fn
+    __device__ float fxGPU(float); // init activation fn
 
     // Need linearized input/output for GPU.
     int i,j,k = 0,input[numIn_*numTrainSample_] = {0},output[numOut_*numTrainSample_] = {0};
