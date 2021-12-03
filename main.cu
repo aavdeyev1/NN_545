@@ -119,28 +119,28 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[0] = 0.0;
 		testW[1] = 1.0;
 		testW[2] = 2.0;
-		testW[3] = 3.0;
-		testW[4] = 4.0;
-		testW[5] = 5.0;
-		testW[6] = 6.0;
-		testW[7] = 7.0;
-		testW[8] = 8.0;
-		testW[9] = 0.0;
-		testW[10] = 0.0;
+		testW[3] = 0.0;
+		testW[4] = 3.0;
+		testW[5] = 4.0;
+		testW[6] = 5.0;
+		testW[7] = 0.0;
+		testW[8] = 6.0;
+		testW[9] = 7.0;
+		testW[10] = 8.0;
 		testW[11] = 0.0;
 
-		testW[9] = 0.0;
-		testW[10] = 1.0;
-		testW[11] = 2.0;
-		testW[12] = 3.0;
-		testW[13] = 4.0;
-		testW[14] = 5.0;
-		testW[15] = 6.0;
-		testW[16] = 7.0;
-		testW[17] = 8.0;
-		testW[18] = 9.0;
-		testW[19] = 10.0;
-		testW[20] = 11.0;
+		testW[12] = 0.0;
+		testW[13] = 1.0;
+		testW[14] = 2.0;
+		testW[15] = 3.0;
+		testW[16] = 4.0;
+		testW[17] = 5.0;
+		testW[18] = 6.0;
+		testW[19] = 7.0;
+		testW[20] = 8.0;
+		testW[21] = 9.0;
+		testW[22] = 10.0;
+		testW[23] = 11.0;
 		printArray3D(testW, numH_, numIn_+1, numTLayers, 1);
 
         // Allocate host mem
