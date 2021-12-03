@@ -108,7 +108,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		blockSize = 1;
 		gridSize = 1;
 
-        float* test = (float *)malloc(numH_*sizeof(float));
+        float* test = (float *)malloc(numH*(numIn_ + 1)*sizeof(float));
 
         // Allocate host mem
         int *h_input=0;
@@ -116,7 +116,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         d_vHidden = (float *)malloc(numH_*sizeof(float));
-		// d_wHidden = (float *)malloc(numH_*(numIn_+1)*sizeof(float));
+		d_wHidden = (float *)malloc(numH_*(numIn_+1)*sizeof(float));
 		// d_h = (float *)malloc();
 		// float* d_vOut;
 		// float* d_yError;
@@ -131,7 +131,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*numTrainSample_*sizeof(float) ) );
-        // checkCudaErrors( cudaMalloc( &d_wHidden, numH*(numIn_ + 1)*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_wHidden, numH*(numIn_ + 1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
@@ -147,16 +147,17 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         kernel<<<grid, block>>>(d_input,
 								 d_output,
 								 d_vHidden,
+								 d_wHidden,
 								 numIn_,
 								 numTrainSample_);
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
-        checkCudaErrors( cudaMemcpy( test, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( test, d_wHidden, numH*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
-		printArray(test, 1, numH_, 1);
+		printArray(test, numIn_ + 1, numH_, 1);
 
         free( h_input );
         free( h_output );
