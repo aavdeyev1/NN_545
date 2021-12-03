@@ -192,7 +192,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         free( h_input );
         free( h_output );
         free(testW);
-		free(h_w);
+		free(h_W);
         
         cudaFree( d_input );
         cudaFree( d_output );
