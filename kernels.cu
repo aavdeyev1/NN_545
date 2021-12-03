@@ -75,7 +75,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
-            vHidden[i] = *h;
+            vHidden[i] = *h[0];
             printf("%5.02f ", h[0]);
             h[0] = 0;
         }
