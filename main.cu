@@ -129,7 +129,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         int *d_input=0, *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
-        checkCudaErrors( cudaMalloc( &d_vHidden, numH*numTrainSample_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vHidden, numH_*numTrainSample_*sizeof(float) ) );
         // checkCudaErrors( cudaMalloc( &d_wHidden, numH*(numIn_ + 1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
