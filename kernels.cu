@@ -47,11 +47,12 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 { // Done
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
-    int idx = iy*numIn + ix;
+    int idx = iy*(numIn) + ix;
+    int h_idx = iy*(numIn + 1) + ix;
     if (ix == 0)
-        wHidden[idx] = 1;
+        wHidden[h_idx] = 1;
     else
-        wHidden[idx] = 2;
+        wHidden[h_idx] = 2;
     
 }
 
