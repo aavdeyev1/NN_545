@@ -43,13 +43,13 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
     ab[(Row*k)+Col]=Pvalue;
 }
 
-__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numH, int numLayers, int numPairs )
+__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numH, int numLayers, int numTrainSample)
 { // Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
 
     for (int q=0; q<numTrainSample*numIn;q++)
-        printf("%5d ", input[q])
+        printf("%5d ", input[q]);
 
     float h = 0;
     int i,j,k;
