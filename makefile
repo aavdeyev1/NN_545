@@ -118,7 +118,7 @@ $(target): $(objects)
 
 
 
-
+echo $(cuflags)
 %.o: %.cu
 	$(nvcc) -arch=sm_30 -c $< $(cuflags) $(cuinc_paths) -o $@
 
