@@ -126,7 +126,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // error vector
 
         // Allocate dev mem
-        int *d_input=0, *d_output=0;
+        int *d_input=0;
+		float *d_output=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*numTrainSample_*sizeof(float) ) );
