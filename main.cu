@@ -178,6 +178,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 								 d_vHidden,
 								 d_wHidden,
 								 numIn_,
+								 numH_,
+								 numTLayers,
 								 numTrainSample_);
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );

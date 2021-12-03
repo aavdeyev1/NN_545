@@ -43,22 +43,23 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
     ab[(Row*k)+Col]=Pvalue;
 }
 
-__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numPairs )
+__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numLayers, int numPairs )
 { // Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
 
     float h = 0;
+    int i,j,k;
     int cols = numIn + 1;
     int rows = numH_;
 
-    for (k=0; k<numTLayers; k++) { //2x z-dim
+    for (k=0; k<numLayers; k++) { //2x z-dim
 		for(i=0; i<numH_; i++){ //3x rows
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 atomicAdd(&h, input[ix*numIn] * wHidden[k*cols*rows + i*cols + (j+1)]);
 				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
 			// }
-    // for(int layer=0; layer < numTLayers; layer++) {
+    // for(int layer=0; layer < numLayers; layer++) {
     //     for(int m = 0; m < numH_; m++) {
     //         for(int k = 0; k < numIn; k++) {
     //             i*cols + j
@@ -66,7 +67,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             atomicAdd(&h, wHidden[k*cols*rows + i*cols + 0]);
-            vHidden_[i] = h;
+            vHidden[i] = h;
 
             h = 0;
         }
@@ -159,6 +160,6 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
  printf("\n");
 }
 
-__device__ void add(float *h, float *other) {
-    atomicAdd(&h, *other);
-  }
+// __device__ void add(float *h, float *other) {
+//     atomicAdd(&h, *other);
+//   }
