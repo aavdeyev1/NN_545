@@ -51,7 +51,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, ix);
+    printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, idx);
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
