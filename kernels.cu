@@ -45,15 +45,50 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
 
 __global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numPairs )
 { // Done
+    // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
-    int iy   = blockIdx.y*blockDim.y + threadIdx.y;
-    int idx = iy*(numIn) + ix;
-    if (ix == 0)
-        wHidden[idx] = 1;
-    else
-        wHidden[idx] = 2;
+
+    float h = 0;
+    int cols = numIn + 1;
+    int rows = numH_;
+
+    for (k=0; k<numTLayers; k++) { //2x z-dim
+		for(i=0; i<numH_; i++){ //3x rows
+			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
+                atomicAdd(&h, input[ix*numIn] * wHidden[k*cols*rows + i*cols + (j+1)]);
+				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
+			// }
+    // for(int layer=0; layer < numTLayers; layer++) {
+    //     for(int m = 0; m < numH_; m++) {
+    //         for(int k = 0; k < numIn; k++) {
+    //             i*cols + j
+    //             atomicAdd(&h, input[k*numIn] * wHidden[m][k + 1]);
+            }
+            // adding the bias weight w0
+            atomicAdd(&h, wHidden[k*cols*rows + i*cols + 0]);
+            vHidden_[i] = h;
+
+            h = 0;
+        }
+    }
+
+    // // compute vOut
+    // for(int m = 0; m < numNeuronOut_; m++)
+    // {
+    //     for(k = 0; k < numNeuronHidden_; k++)
+    //         y = y + vHidden_[k] * wOut_[m][k + 1];
+    //     y = y + wOut_[m][0];
+    //     vOut_[m] = pLogisticFun(static_cast<float>(y));
+
+    //     y = 0;
+    // }
     
 }
+
+// if (ix == 0)
+//         wHidden[idx] = 1;
+//     else
+//         wHidden[idx] = 2;
 
 // // Indexing into wHideen, set bias=1
 // int h_idx = iy*(numIn + 1) + ix;
@@ -65,58 +100,9 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 //the transfer function used by neural network
 __device__ float fxGPU(float x)
 {
-	return (float)(1.0f / (1 + exp((float)(x * (-1)))));
+	// return (float)(1.0f / (1 + exp((float)(x * (-1)))));
+    return 1.2;
 }
-
-// int main() {
-
-//     int ccols = DIMZ, cRows=DIMX, Acols=DIMY, ARows=DIMX, BRows=DIMY, Bcols=DIMZ;
-
-//     dim3 dimBlock(TILE_DIM, TILE_DIM, 1);
-//     dim3 dimGrid;
-
-//     dimGrid.x = (ccols + dimBlock.x - 1)/dimBlock.x;
-//     dimGrid.y = (cRows + dimBlock.y - 1)/dimBlock.y;
-
-//     float *deviceA, *deviceB, *devicec;
-
-//     float* hostA    = (float*)malloc(DIMX*DIMY*sizeof(float));
-//     float* hostB    = (float*)malloc(DIMY*DIMZ*sizeof(float));
-//     float* hostc    = (float*)malloc(DIMX*DIMZ*sizeof(float));
-//     float* hostcp   = (float*)malloc(DIMX*DIMZ*sizeof(float));
-
-//     // for (int x = 0; x<DIMX; x++)
-//     //     for (int y = 0; y<DIMY; y++) {
-//     //         hostA[x*DIMY+y] = rand()/(float)RAND_MAX;
-//     //         hostB[x*DIMY+y] = rand()/(float)RAND_MAX;
-//     //     }
-
-//     hostA[0] = 1.0;
-//     hostA[1] = 2.0;
-//     hostB[0] = 1.0;
-//     hostB[1] = 2.0;
-//     hostB[2] = 3.0;
-//     hostB[3] = 1.0;
-//     hostB[4] = 2.0;
-//     hostB[5] = 3.0;
-
-//     cudaMalloc((void **)&deviceA, DIMX*DIMY*sizeof(float));
-//     cudaMalloc((void **)&deviceB, DIMY*DIMZ*sizeof(float));
-//     cudaMalloc((void **)&devicec, DIMX*DIMZ*sizeof(float));
-
-//     cudaMemcpy(deviceA, hostA, DIMX*DIMY*sizeof(float), cudaMemcpyHostToDevice);
-//     cudaMemcpy(deviceB, hostB, DIMY*DIMZ*sizeof(float), cudaMemcpyHostToDevice);
-
-//     matrix_multiply_simple<<<dimGrid , dimBlock>>>(deviceA , deviceB , devicec , ARows , Acols, Bcols);
-
-//     cudaMemcpy(hostc, devicec, DIMX*DIMZ*sizeof(float), cudaMemcpyDeviceToHost);
-//     printArray(hostA, DIMX, DIMY, 1);
-//     printArray(hostB, DIMY, DIMZ, 1);
-//     printArray(hostc, DIMX, DIMZ, 1);
-
-//     return 0;
-// }
-
 
 void printArray(float *arr, int rows, int cols, int shouldPrint){
     if (!shouldPrint)
@@ -134,3 +120,45 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
  
     printf("\n");
  }
+
+ void printArray(int *arr, int rows, int cols, int shouldPrint){
+    if (!shouldPrint)
+       return;
+           
+    int i,j;
+ 
+    for(i=0; i<rows; i++){
+       for(j=0; j<cols; j++){
+       
+          printf("%d ", arr[i*cols + j]);
+       }
+       printf("\n");
+    }
+ 
+    printf("\n");
+ }
+
+void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
+	if (!sP)
+	return;
+		
+ 	int i,j,k;
+
+	for (k=0; k<pages; k++) {
+		printf("Layer %d\n", k);
+		for(i=0; i<cols; i++){
+			for(j=0; j<rows; j++){
+		
+				printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
+			}
+			printf("\n");
+   		}
+   		printf("\n");
+  	}
+
+ printf("\n");
+}
+
+__device__ void add(float *h, float *other) {
+    atomicAdd(&h, *other);
+  }
