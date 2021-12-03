@@ -47,12 +47,14 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 { // Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
+    int iy   = blockIdx.y*blockDim.y + threadIdx.y;
+    int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
     printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, ix);
-    for (int q=0; q<numTrainSample*numIn;q++)
-        printf("%5d ", input[q]);
-    printf("\n");
+    // for (int q=0; q<numTrainSample*numIn;q++)
+    //     printf("%5d ", input[q]);
+    // printf("\n");
     float h = 0;
     int i,j,k;
     int cols = numIn + 1;
