@@ -56,7 +56,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     //     printf("%5d ", input[q]);
     // printf("\n");
     extern __shared__ float h[];
-    h[0] = 0;
+    h[idx] = 0;
     int i,j,k;
     int cols = numIn + 1;
     int rows = numH;
@@ -65,7 +65,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 		for(i=0; i<rows; i++){ //3x rows
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
-                atomicAdd(&h[0], input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)]);
+                h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)];
+                // atomicAdd(&h[0], input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)]);
 				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
 			// }
     // for(int layer=0; layer < numLayers; layer++) {
@@ -76,11 +77,11 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
-            vHidden[i] = h[0];
-            printf("%5.02f ", h[0]);
-            h[0] = 0;
+            vHidden[i] = h[idx];
+            printf("%5.02f ", h[idx]);
+            h[idx] = 0;
         }
-        h[0] = 0;
+        h[idx] = 0;
     }
 
     // // compute vOut
