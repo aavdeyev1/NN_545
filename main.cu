@@ -157,7 +157,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
-		printArray(test, numIn_ + 1, numH_, 1);
+		printArray(test, numH_, numIn_ + 1, 1);
 
         free( h_input );
         free( h_output );
