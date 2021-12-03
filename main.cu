@@ -182,7 +182,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 								 numTLayers,
 								 numTrainSample_);
         
-		cudaDeviceReset();
+		cudaDeviceSynchronize();
 		cudaError_t err = cudaGetLastError();        // Get error code
 
 		if ( err != cudaSuccess )
