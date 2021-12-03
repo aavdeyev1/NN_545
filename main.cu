@@ -312,7 +312,7 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
  	int i,j,k;
 
 	for (k=0; k<pages; k++) {
-		print("Layer %d\n", k);
+		printf("Layer %d\n", k);
 		for(i=0; i<cols; i++){
 			for(j=0; j<rows; j++){
 		
