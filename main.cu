@@ -181,7 +181,15 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 								 numH_,
 								 numTLayers,
 								 numTrainSample_);
-        checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
+        
+		cudaError_t err = cudaGetLastError();        // Get error code
+
+		if ( err != cudaSuccess )
+		{
+		printf("CUDA Error: %s\n", cudaGetErrorString(err));
+		exit(-1);
+		}
+		checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
