@@ -64,7 +64,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for (k=0; k<numLayers; k++) { //2x z-dim
 		for(i=0; i<rows; i++){ //3x rows
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
-                atomicAdd(&h[1], input[ix*numIn] * wHidden[k*cols*rows + i*cols + (j+1)]);
+                atomicAdd(&h[0], input[ix*numIn] * wHidden[k*cols*rows + i*cols + (j+1)]);
 				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
 			// }
     // for(int layer=0; layer < numLayers; layer++) {
@@ -74,7 +74,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     //             atomicAdd(&h, input[k*numIn] * wHidden[m][k + 1]);
             }
             // adding the bias weight w0
-            atomicAdd(&h[1], wHidden[k*cols*rows + i*cols + 0]);
+            atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
             vHidden[i] = h;
 
             h = 0;
