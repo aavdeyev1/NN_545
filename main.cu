@@ -23,11 +23,13 @@ using namespace std;
 #define numIn_ 2
 #define numH_ 3
 #define numOut_ 1
+#define numTLayers 2 // HIDDEN LAYER + OUTPUT LAYER
 
 #define numTrainSample_ 64
 
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,float (*pLogisticFun)(float));
 void printArray(int *arr, int rows, int cols, int shouldPrint);
+void printArray3D(float *arr, int rows, int cols, int pages, int sP);
 
 int main()
 {
@@ -116,8 +118,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         d_vHidden = (float *)malloc(numH_*sizeof(float));
-		d_wHidden = (float *)malloc(numH_*(numIn_+1)*sizeof(float));
-		// d_h = (float *)malloc();
+		d_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
+		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
 		// float* d_yError;
 		// float* d_hError;
@@ -131,7 +133,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*numTrainSample_*sizeof(float) ) );
-        checkCudaErrors( cudaMalloc( &d_wHidden, numH_*(numIn_ + 1)*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
@@ -157,7 +159,28 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
-		printArray(test, numH_, numIn_ + 1, 1);
+		// printArray(test, numH_, numIn_ + 1, 1);
+		printArray(test, numH_, numIn_ + 1, 1); 
+		test[0] = 1.0;
+		test[1] = 2.0;
+		test[3] = 3.0;
+		test[4] = 4.0;
+		test[5] = 5.0;
+		test[6] = 6.0;
+		test[7] = 7.0;
+		test[8] = 8.0;
+		test[9] = 9.0;
+
+		test[10] = 91.0;
+		test[11] = 92.0;
+		test[12] = 93.0;
+		test[13] = 94.0;
+		test[14] = 95.0;
+		test[15] = 96.0;
+		test[16] = 97.0;
+		test[17] = 98.0;
+		test[18] = 99.0;
+		printArray3D(test, numH_, numIn_+1, numTLayers, 1);
 
         free( h_input );
         free( h_output );
@@ -281,3 +304,24 @@ void printArray(int *arr, int rows, int cols, int shouldPrint){
  
     printf("\n");
  }
+
+void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
+	if (!sP)
+	return;
+		
+ 	int i,j,k;
+
+	for (k=0; k<pages; k++) {
+		print("Layer %d\n", k);
+		for(i=0; i<cols; i++){
+			for(j=0; j<rows; j++){
+		
+				printf("%d ", arr[j*cols*pages + i*pages + k]);
+			}
+			printf("\n");
+   		}
+   		printf("\n");
+  	}
+
+ printf("\n");
+}

@@ -48,13 +48,19 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
     int idx = iy*(numIn) + ix;
-    int h_idx = iy*(numIn + 1) + ix;
     if (ix == 0)
-        wHidden[h_idx] = 1;
+        wHidden[idx] = 1;
     else
-        wHidden[h_idx] = 2;
+        wHidden[idx] = 2;
     
 }
+
+// // Indexing into wHideen, set bias=1
+// int h_idx = iy*(numIn + 1) + ix;
+//     if (ix == 0)
+//         wHidden[h_idx] = 1;
+//     else
+//         wHidden[h_idx] = 2;
 
 //the transfer function used by neural network
 __device__ float fxGPU(float x)
