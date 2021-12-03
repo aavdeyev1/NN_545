@@ -84,8 +84,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             // }
             // adding the bias weight w0
             // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
-            h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
-            vHidden[k*numLayers+i] = h[idx];
+            h[idx] = h[idx] + wHidden[k*cols*rows + i*rows + 0];
+            vHidden[k*rows+i] = h[idx];
             printf("%5.02f ", h[idx]);
             h[idx] = 0;
         }
