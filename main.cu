@@ -120,11 +120,11 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[1] = 1.0;
 		testW[2] = 2.0;
 		testW[3] = 3.0;
-		// testW[4] = 4.0;
-		// testW[5] = 5.0;
-		// testW[6] = 6.0;
-		// testW[7] = 7.0;
-		// testW[8] = 8.0;
+		testW[4] = 4.0;
+		testW[5] = 5.0;
+		testW[6] = 6.0;
+		testW[7] = 7.0;
+		testW[8] = 8.0;
 
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
