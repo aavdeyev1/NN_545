@@ -189,6 +189,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         cudaFree( d_input );
         cudaFree( d_output );
         cudaFree( d_vHidden );
+		cudaFree( d_wHidden );
         
     // for each training interation in maxNumTrainIterations
 
