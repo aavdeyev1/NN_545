@@ -155,14 +155,15 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
-        checkCudaErrors( cudaMemcpy( test, d_wHidden, numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( test, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
 		// printArray(test, numH_, numIn_ + 1, 1);
 		printArray(test, numH_, numIn_ + 1, 1); 
-		test[0] = 1.0;
-		test[1] = 2.0;
+		test[0] = 0.0;
+		test[1] = 1.0;
+		test[2] = 2.0;
 		test[3] = 3.0;
 		test[4] = 4.0;
 		test[5] = 5.0;
@@ -170,14 +171,15 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		test[7] = 7.0;
 		test[8] = 8.0;
 
-		test[10] = 91.0;
-		test[11] = 92.0;
-		test[12] = 93.0;
-		test[13] = 94.0;
-		test[14] = 95.0;
-		test[15] = 96.0;
-		test[16] = 97.0;
-		test[17] = 98.0;
+		test[9] = 91.0;
+		test[10] = 92.0;
+		test[11] = 93.0;
+		test[12] = 94.0;
+		test[13] = 95.0;
+		test[14] = 96.0;
+		test[15] = 97.0;
+		test[16] = 98.0;
+		test[17] = 99.0;
 		printArray3D(test, numH_, numIn_+1, numTLayers, 1);
 
         free( h_input );
