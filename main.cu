@@ -98,8 +98,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float mytrim(float);
 
         // int* d_indata;
-		float* d_vHidden;
-		float* d_wHidden;
+		// float* d_vHidden;
+		// float* d_wHidden;
 		float* d_h;
 		float* d_vOut;
 		float* d_yError;
@@ -140,6 +140,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // Allocate host mem
         int *h_input=0;
         float *h_output=0;
+		float *h_vHidden=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numH_*sizeof(float));
@@ -199,7 +200,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         printArray(h_input, numTrainSample_, numIn_, 1);
         printArray(h_output, 1, numTrainSample_, 1);
-		printf("weights:\n")
+		printf("weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 		printf("vHidden:\n");
 		printArray(h_vHidden, numH_, numH_, 1);
