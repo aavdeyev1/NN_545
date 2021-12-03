@@ -51,10 +51,10 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     float h = 0;
     int i,j,k;
     int cols = numIn + 1;
-    int rows = numH_;
+    int rows = numH;
 
     for (k=0; k<numLayers; k++) { //2x z-dim
-		for(i=0; i<numH_; i++){ //3x rows
+		for(i=0; i<rows; i++){ //3x rows
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 atomicAdd(&h, input[ix*numIn] * wHidden[k*cols*rows + i*cols + (j+1)]);
 				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
