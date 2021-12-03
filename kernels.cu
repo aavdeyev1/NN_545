@@ -43,7 +43,7 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
     ab[(Row*k)+Col]=Pvalue;
 }
 
-__global__ void kernel4( int *input, float *output, float *vHidden, int numIn, int numPairs )
+__global__ void kernel( int *input, float *output, float *vHidden, int numIn, int numPairs )
 { // Done
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
