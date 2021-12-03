@@ -114,7 +114,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		blockSize = 1;
 		gridSize = 1;
 
-        float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
+        float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 2)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		testW[0] = 0.0;
 		testW[1] = 1.0;
