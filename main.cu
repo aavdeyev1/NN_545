@@ -99,7 +99,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         // int* d_indata;
 		// float* d_vHidden;
-		// float* d_wHidden;
+		// float* h_wHidden;
 		float* d_h;
 		float* d_vOut;
 		float* d_yError;
@@ -141,10 +141,11 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         int *h_input=0;
         float *h_output=0;
 		float *h_vHidden=0;
+		float *h_wHidden=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numH_*sizeof(float));
-		d_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
+		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
 		// float* d_yError;
@@ -214,7 +215,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         cudaFree( d_input );
         cudaFree( d_output );
         cudaFree( d_vHidden );
-		cudaFree( d_wHidden );
+		cudaFree( h_wHidden );
         
     // for each training interation in maxNumTrainIterations
 
