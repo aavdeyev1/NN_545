@@ -70,18 +70,18 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 
     for (k=0; k<numLayers; k++) { //2x z-dim
 		for(i=0; i<rows; i++){ //3x rows
-            if (k==0) {
+            // if (k==0) {
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
                 h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*rows + (j+1)];
             }
-            }
-            else {
-                for(j=0; j<numH; j++){ //2x, for each w1 w2 cols
-                    printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
-                    h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*rows + (j+1)];
-                }
-            }
+            // }
+            // else {
+            //     for(j=0; j<numH; j++){ //2x, for each w1 w2 cols
+            //         printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
+            //         h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*rows + (j+1)];
+            //     }
+            // }
             // adding the bias weight w0
             // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
             h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
