@@ -125,6 +125,11 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[7] = 7.0;
 		testW[8] = 8.0;
 
+		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
+		wOutTestIn[0] = 0.0;
+		wOutTestIn[1] = 1.0;
+		wOutTestIn[2] = 2.0;
+		wOutTestIn[3] = 3.0;
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
 		// testW[11] = 93.0;
@@ -134,7 +139,12 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// testW[15] = 97.0;
 		// testW[16] = 98.0;
 		// testW[17] = 99.0;
+		numOut_*(numH_+1)
+		printf("wHidden:\n");
 		printArray3D(testW, numH_, numIn_ + 1, numTLayers, 1);
+		printf("wOut:\n");
+		printArray3D(wOutTestIn, numOut_, numH_ + 1, 1, 1);
+
 		// printArray3D(testW, , 4, 1, 1); // cols, rows, 
 
         // Allocate host mem
@@ -142,10 +152,14 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         float *h_output=0;
 		float *h_vHidden=0;
 		float *h_wHidden=0;
+		float *h_vOut=0;
+		float *h_wOut=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numH_*sizeof(float));
 		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
+		h_vOut = (float *)malloc(numOut_*sizeof(float));
+		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
 		// float* d_yError;
@@ -159,15 +173,21 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *d_output=0;
 		float *d_vHidden=0;
 		float *d_wHidden=0;
+		float *d_vOut=0;
+		float *d_wOut=0;
+
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vOut, numOut_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
         checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
 		checkCudaErrors( cudaMemcpy( d_wHidden, testW, numTLayers*numH_*(numIn_+1)*sizeof(float), cudaMemcpyHostToDevice) );
+		checkCudaErrors( cudaMemcpy( d_wOut, wOutTestIn, numOut_*(numH_+1)*sizeof(float), cudaMemcpyHostToDevice) );
 
 
         dim3 grid, block;
@@ -180,8 +200,11 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 								 d_output,
 								 d_vHidden,
 								 d_wHidden,
+								 d_vOut,
+								 d_wOut,
 								 numIn_,
 								 numH_,
+								 numOut_,
 								 numTLayers,
 								 numTrainSample_);
         
@@ -198,26 +221,41 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
         
-
+		printf("Input:\n");
         printArray(h_input, numTrainSample_, numIn_, 1);
         // printArray(h_output, 1, numTrainSample_, 1);
-		printf("weights:\n");
+		printf("hidden weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
 		printf("vHidden:\n");
 		printArray(h_vHidden, numH_, 1, 1);
 
+		printf("out weights:\n");
+		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
+
+		printf("vOut:\n");
+		printArray(h_vOut, numOut_, 1, 1);
+
         free( h_input );
         free( h_output );
 		free( h_vHidden );
+		free(h_wHidden);
+		free(vOut);
+		free(h_wOut);
+
         free(testW);
 		free(h_W);
+		free(wOutTestIn);
         
         cudaFree( d_input );
         cudaFree( d_output );
         cudaFree( d_vHidden );
-		cudaFree( h_wHidden );
+		cudaFree( d_wHidden );
+		cudaFree(d_vOut);
+		cudaFree(d_wOut);
         
     // for each training interation in maxNumTrainIterations
 

@@ -44,8 +44,8 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
     ab[(Row*k)+Col]=Pvalue;
 }
 
-__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, int numIn, int numH, int numLayers, int numTrainSample)
-{ // Done
+__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, float *d_vOut, float *d_wOut, int numIn, int numH, int numOut, int numLayers, int numPairs )
+{// Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
@@ -76,6 +76,31 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
         }
         h[idx] = 0;
     }
+
+    // reset h (h = y)
+    h = 0;
+    rows = numOut;
+    // Compute vOut
+    for(i=0; i<rows; i++){ //3x rows
+        for(j=0; j<numH; j++){ //2x, for each w1 w2 cols
+            printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
+            h[idx] = h[idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
+        }
+        // adding the bias weight w0
+        h[idx] = h[idx] + wOut[k*cols*rows + i*cols + 0];
+        vOut[i] = fxGPU(h, idx);
+        printf("%5.02f ", h[idx]);
+        h[idx] = 0;
+    }
+    // for(m = 0; m < numOut; m++)
+    // {
+    //     for(k = 0; k < numNeuronHidden_; k++)
+    //         y = y + vHidden[k] * wOut_[m][k + 1];
+    //     y = y + wOut_[m][0];
+    //     vOut_[m] = pLogisticFun(static_cast<float>(y));
+
+    //     y = 0;
+    // }
 
 
     				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
@@ -116,7 +141,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 __device__ float fxGPU(float *x, int idx)
 {
 	// return (float)(1.0f / (1 + exp((float)(x * (-1)))));
-    return 1.2 * x[idx];
+    return 1.0 * x[idx];
 }
 
 void printArray(float *arr, int rows, int cols, int shouldPrint){
