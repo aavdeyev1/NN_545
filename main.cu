@@ -23,7 +23,7 @@ using namespace std;
 #define numIn_ 2
 #define numH_ 3
 #define numOut_ 1
-#define numLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
+#define numTLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
 
 // #define numTrainSample_ 64
 #define numTrainSample_ 4
