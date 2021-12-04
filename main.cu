@@ -155,7 +155,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *h_wOut=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
-        h_vHidden = (float *)malloc(numH_*sizeof(float));
+        h_vHidden = (float *)malloc(numTrainSample_*numH_*sizeof(float));
 		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		h_vOut = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
@@ -177,7 +177,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
-        checkCudaErrors( cudaMalloc( &d_vHidden, numH_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) ) );
@@ -219,7 +219,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
-		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
         
@@ -230,7 +230,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
 		printf("vHidden:\n");
-		printArray(h_vHidden, numH_, 1, 1);
+		printArray(h_vHidden, numTrainSample_, numH_, 1);
 
 		printf("out weights:\n");
 		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
