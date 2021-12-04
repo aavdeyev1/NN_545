@@ -61,7 +61,6 @@ int main()
             output[k] = indata[i][j];
             k ++;
         }
-	__device__ float fxGPU();
 
     printArray(input, numTrainSample_, numIn_, 1);
     printArray(output, 1, numTrainSample_, 1);
@@ -79,7 +78,7 @@ int main()
 
 // Make cudaMemcpy and cudaMalloc to allocate memory for gpu
 // Input will be the input and output arrays calculated in main numTrainSample, learnRate, long maxNumTrainIterate, *pLogisticFun
-void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,float (*pLogisticFun)(float))
+void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate,__device__ float (*pLogisticFun)(float))
 {
     // row number of the trainData is the amounts of training samples, the column of the trainData  that is from column 0 to numNeuronIn_ - 1 will
 		// be assigned to indata_ .
