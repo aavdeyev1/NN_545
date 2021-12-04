@@ -161,8 +161,8 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 
 	for (k=0; k<pages; k++) {
 		printf("Layer %d\n", k);
-		for(j=0; j<cols; j++){
-			for(i=0; i<rows; i++){
+		for(i=0; i<rows; i++){
+			for(j=0; j<cols; j++){
 		
 				printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
 			}
