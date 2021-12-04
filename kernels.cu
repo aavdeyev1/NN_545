@@ -44,7 +44,7 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
     ab[(Row*k)+Col]=Pvalue;
 }
 
-__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, float *vOut, float *wOut, int numIn, int numH, int numOut, int numLayers, int numPairs )
+__global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, float *vOut, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
 {// Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
@@ -100,9 +100,10 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     }
 
     // compute yErr
-    // for(m = 0; m < numNeuronOut_; m++)
-    //     yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
-    
+    for(i = 0; i < numOut; i++) {
+        yError[idx*rows+i] = idx*rows + i
+        // yError[idx*rows+i] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
+    }
     //compute hError
     // for(m = 0; m < numNeuronHidden_; m++)
     // {

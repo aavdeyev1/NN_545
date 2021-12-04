@@ -101,8 +101,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// float* h_wHidden;
 		float* d_h;
 		// float* d_vOut;
-		float* d_yError;
-		float* d_hError;
+		// float* d_yError;
+		// float* d_hError;
 		// float* d_wOut;
 		float* d_result;
 
@@ -153,12 +153,17 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *h_wHidden=0;
 		float *h_vOut=0;
 		float *h_wOut=0;
+		float *h_yError=0;
+		float *h_hError=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numTrainSample_*numH_*sizeof(float));
 		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		h_vOut = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
+		h_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
+		h_hError = (float *)malloc(numTrainSample_*numH_*sizeof(float));
+		
 		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
 		// float* d_yError;
@@ -174,14 +179,16 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *d_wHidden=0;
 		float *d_vOut=0;
 		float *d_wOut=0;
-
+		float *d_yError=0;
+		float *d_hError=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) ) );
-        printf("%d\n", numIn_*numTrainSample_);
+		checkCudaErrors( cudaMalloc( &d_yError, numOut_*numTrainSample_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_hError, numTrainSample_*numH_*sizeof(float) ) );
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
         checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
@@ -201,6 +208,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 								 d_wHidden,
 								 d_vOut,
 								 d_wOut,
+								 d_hError,
+								 d_yError,
 								 numIn_,
 								 numH_,
 								 numOut_,
@@ -219,8 +228,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
-		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_vHidden, d_hError, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_vOut, d_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
         
 		printf("Input:\n");
@@ -229,10 +238,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printf("hidden weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
-		printf("vHidden:\n");
+		printf("vHidden HERROR:\n");
 		printArray(h_vHidden, numTrainSample_, numH_, 1);
 
-		printf("out weights:\n");
+		printf("out weights YERROR:\n");
 		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
 
 		printf("vOut:\n");
