@@ -100,10 +100,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// float* d_vHidden;
 		// float* h_wHidden;
 		float* d_h;
-		float* d_vOut;
+		// float* d_vOut;
 		float* d_yError;
 		float* d_hError;
-		float* d_wOut;
+		// float* d_wOut;
 		float* d_result;
 
 		
@@ -139,7 +139,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// testW[15] = 97.0;
 		// testW[16] = 98.0;
 		// testW[17] = 99.0;
-		numOut_*(numH_+1)
 		printf("wHidden:\n");
 		printArray3D(testW, numH_, numIn_ + 1, numTLayers, 1);
 		printf("wOut:\n");
@@ -243,7 +242,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         free( h_output );
 		free( h_vHidden );
 		free(h_wHidden);
-		free(vOut);
+		free(h_vOut);
 		free(h_wOut);
 
         free(testW);
