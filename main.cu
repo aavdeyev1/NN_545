@@ -204,7 +204,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // printArray(h_output, 1, numTrainSample_, 1);
 		printf("weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
-		printArray3D(h_W, 1, numH_*numIn_+1*numTLayers, 1, 1);
+		printArray3D(h_W, 1, numH_*(numIn_+1)*numTLayers, 1, 1);
 
 		printf("vHidden:\n");
 		printArray(h_vHidden, numH_, 1, 1);
