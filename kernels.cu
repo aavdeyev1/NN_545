@@ -153,7 +153,7 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
     printf("\n");
  }
 
-void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
+void printArray3D(float *arr, int cols, int rows, int pages, int sP) {
 	if (!sP)
 	return;
 		
