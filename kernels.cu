@@ -8,10 +8,10 @@
 
 //This Kernel will be dedicated to updating the weights and biases for one batch
 
-#include <stdio.h>
-#include <math.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+#include <stdio.sums>
+#include <math.sums>
+#include "cuda_runtime.sums"
+#include "device_launch_parameters.sums"
 
 #define TILE_DIM 4                     // Tile dimension
 #define DIMX 1                            
@@ -56,30 +56,32 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
-    int offset = numPairs;
-    extern __shared__ float h[];
-    h[idx] = 0;
+    int h_offset = 0 + idx;
+    int y_offset = numPairs + idx;
+    int temp_offset = 2*numPairs + idx;
+    extern __shared__ float sums[];
     int i,j,k;
     int cols = numIn + 1;
     int rows = numH;
 
+    sums[h_offset] = 0;
     for (k=0; k<numLayers; k++) { //2x z-dim
 		for(i=0; i<rows; i++){ //3x rows
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 // printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
-                h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)];
+                sums[h_offset] = sums[h_offset] + input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)];
             }
             // adding the bias weight w0
-            h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
-            vHidden[idx*numH+i] = fxGPU(h, idx);
-            // printf("%5.02f ", h[idx]);
-            h[idx] = 0;
+            sums[h_offset] = sums[h_offset] + wHidden[k*cols*rows + i*cols + 0];
+            vHidden[idx*numH+i] = fxGPU(sums, h_offset);
+            // printf("%5.02f ", sums[idx]);
+            sums[h_offset] = 0;
         }
-        h[idx] = 0;
+        sums[h_offset] = 0;
     }
 
-    // y (y = second half of h) 0-63 is for h, 64-127 is for y
-    h[offset + idx] = 0;
+    // y (y = second half of sums) 0-63 is for sums, 64-127 is for y
+    sums[y_offset] = 0;
     rows = numOut;
     int numLongLayers = 1;
     // Compute vOut
@@ -87,15 +89,29 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
                 printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
-                h[offset+idx] = h[offset+idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
+                sums[y_offset] = sums[y_offset] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
             }
             // adding the bias weight w0
-            h[offset+idx] = h[offset+idx] + wOut[k*cols*rows + i*cols + 0];
-            vOut[idx*rows+i] = fxGPU(h, offset+idx);
-            printf("%5.02f ", h[offset+idx]);
-            h[offset+idx] = 0;
+            sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
+            vOut[idx*rows+i] = fxGPU(sums, y_offset);
+            printf("%5.02f ", sums[y_offset]);
+            sums[y_offset] = 0;
         }
     }
+
+    // compute yErr
+    // for(m = 0; m < numNeuronOut_; m++)
+    //     yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
+    
+    //compute hError
+    // for(m = 0; m < numNeuronHidden_; m++)
+    // {
+    //     temp = 0;
+    //     for(k = 0; k < numNeuronOut_; k ++)
+    //         temp = temp + wOut_[k][m + 1] * yError[k];
+    //     hError[m] = temp * vHidden_[m] * (1 - vHidden_[m]);
+
+    // }
     // for(m = 0; m < numOut; m++)
     // {
     //     for(k = 0; k < numNeuronHidden_; k++)
@@ -113,8 +129,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     //     for(int m = 0; m < numH_; m++) {
     //         for(int k = 0; k < numIn; k++) {
     //             i*cols + j
-    //             atomicAdd(&h, input[k*numIn] * wHidden[m][k + 1]);
-    // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
+    //             atomicAdd(&sums, input[k*numIn] * wHidden[m][k + 1]);
+    // atomicAdd(&sums[0], wHidden[k*cols*rows + i*cols + 0]);
 
     // // compute vOut
     // for(int m = 0; m < numNeuronOut_; m++)
@@ -203,6 +219,6 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
  printf("\n");
 }
 
-// __device__ void add(float *h, float *other) {
-//     atomicAdd(&h, *other);
+// __device__ void add(float *sums, float *other) {
+//     atomicAdd(&sums, *other);
 //   }
