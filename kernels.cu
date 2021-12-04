@@ -51,7 +51,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    printf("Block: %d | Thread: %d | ix: %d", blockIdx.x, threadIdx.x, idx);
+    printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, idx);
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
@@ -69,7 +69,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
-            vHidden[i] = h[idx];
+            vHidden[i] = fxGPU(h[idx]);
             printf("%5.02f ", h[idx]);
             h[idx] = 0;
         }
@@ -160,10 +160,10 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 
 	for (k=0; k<pages; k++) {
 		printf("Layer %d\n", k);
-		for(i=0; i<cols; i++){
-			for(j=0; j<rows; j++){
+		for(i=0; i<rows; i++){
+			for(j=0; j<cols; j++){
 		
-				printf("%5.02f ", arr[k*cols*rows + i*rows + j]);
+				printf("%5.02f ", arr[k*cols*rows + j*cols + i]);
 			}
 			printf("\n");
    		}

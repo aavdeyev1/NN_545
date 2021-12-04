@@ -23,7 +23,7 @@ using namespace std;
 #define numIn_ 2
 #define numH_ 3
 #define numOut_ 1
-#define numTLayers 1 // HIDDEN LAYER + OUTPUT LAYER
+#define numLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
 
 // #define numTrainSample_ 64
 #define numTrainSample_ 4
@@ -204,10 +204,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // printArray(h_output, 1, numTrainSample_, 1);
 		printf("weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
-		printArray3D(h_W, 1, numH_*(numIn_+1)*numTLayers, 1, 1);
 
 		printf("vHidden:\n");
-		printArray(h_vHidden, numH_, 1, 1);
 		printArray(h_vHidden, numH_, 1, 1);
 
         free( h_input );
