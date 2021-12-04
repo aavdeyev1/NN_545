@@ -104,12 +104,12 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for(i = 0; i < numOut; i++) {
         yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
     }
-    for(j = 0; j < numHidden; j++) {
-        for(i = 0; i < numOut; i++) {
-            sums[temp_offset] = sums[temp_offset] + wOut[idx*(numH + 1) + j+1]
-            yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-        }
-    }
+    // for(j = 0; j < numHidden; j++) {
+    //     for(i = 0; i < numOut; i++) {
+    //         sums[temp_offset] = sums[temp_offset] + wOut[idx*(numH + 1) + j+1]
+    //         yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+    //     }
+    // }
 
     // for(m = 0; m < numNeuronOut_; m++)
     //                 yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
