@@ -61,7 +61,7 @@ int main()
             output[k] = indata[i][j];
             k ++;
         }
-
+	__device__ float fxGPU();
 
     printArray(input, numTrainSample_, numIn_, 1);
     printArray(output, 1, numTrainSample_, 1);
