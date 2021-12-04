@@ -77,7 +77,7 @@ cclibraries :=
 
 #----- CUDA compilation options -----
 nvcc        := $(cudaroot)/bin/nvcc
-cuflags     += $(opt) $(cuda_dbg) 
+cuflags     += $(opt) $(cuda_dbg) -dc
 culib_paths := -L$(cudaroot)/$(CUDALIB) -L$(nv_sdk)/C/lib -L$(nv_sdk)/samples/common/lib/$(OSTYPE)  
 cuinc_paths := -I$(cudaroot)/include -I$(nv_sdk)/samples/common/inc 
 culibraries := -lcuda -lcudart -lcudadevrt
