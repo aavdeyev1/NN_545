@@ -101,7 +101,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 
     // compute yErr
     for(i = 0; i < numOut; i++) {
-        yError[idx*rows+i] = idx*rows + i
+        yError[idx*rows+i] = idx*rows + i;
         // yError[idx*rows+i] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
     }
     //compute hError
