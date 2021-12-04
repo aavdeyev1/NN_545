@@ -66,17 +66,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 			for(j=0; j<numIn; j++){ //2x, for each w1 w2 cols
                 printf("||?%5d *%5.02f||\n", input[idx*numIn+j], wHidden[k*cols*rows + i*cols + (j+1)]);
                 h[idx] = h[idx] + input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)];
-                // atomicAdd(&h[0], input[idx*numIn+j] * wHidden[k*cols*rows + i*cols + (j+1)]);
-				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
-			// }
-    // for(int layer=0; layer < numLayers; layer++) {
-    //     for(int m = 0; m < numH_; m++) {
-    //         for(int k = 0; k < numIn; k++) {
-    //             i*cols + j
-    //             atomicAdd(&h, input[k*numIn] * wHidden[m][k + 1]);
             }
             // adding the bias weight w0
-            // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
             h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
             vHidden[i] = h[idx];
             printf("%5.02f ", h[idx]);
@@ -84,6 +75,16 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
         }
         h[idx] = 0;
     }
+
+
+    				// printf("%5.02f ", arr[k*cols*rows + i*cols + j]);
+			// }
+    // for(int layer=0; layer < numLayers; layer++) {
+    //     for(int m = 0; m < numH_; m++) {
+    //         for(int k = 0; k < numIn; k++) {
+    //             i*cols + j
+    //             atomicAdd(&h, input[k*numIn] * wHidden[m][k + 1]);
+    // atomicAdd(&h[0], wHidden[k*cols*rows + i*cols + 0]);
 
     // // compute vOut
     // for(int m = 0; m < numNeuronOut_; m++)

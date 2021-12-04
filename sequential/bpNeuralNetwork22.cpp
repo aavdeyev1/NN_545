@@ -89,7 +89,8 @@ template <class T> class bpNeuralNetwork
 
 		  for(i = 0; i < numNeuronHidden_; i++)
 		  {
-              wHidden_[i][0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+            //   wHidden_[i][0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+			wHidden_[i][0]
 			  for(j = 1; j < numNeuronIn_ + 1; j++)
 				  wHidden_[i][j] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
 		  }
@@ -97,7 +98,7 @@ template <class T> class bpNeuralNetwork
 		  // Initiate wOut_ to random number in U(-0.5,+0.5)
 		  for(i = 0; i < numNeuronOut_; i++)
 		  {
-              wOut_[i][0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+            //   wOut_[i][0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
 			  for(j = 1; j < numNeuronHidden_ + 1; j++)
 				  wOut_[i][j] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
 		  }
