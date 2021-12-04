@@ -101,14 +101,10 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 
     // compute yErr
     for(i = 0; i < numOut; i++) {
-        yError[idx*rows+i] = idx*rows + i;
-        
-        // yError[idx*rows+i] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
+        yError[idx*rows+i] =  vOut_[idx*numOut+i] * ( 1 - vOut_[idx*numOut+i]) * (  vOut_[idx*numOut+i] - output[idx*numOut+i] );
     }
     for(i = 0; i < numH; i++) {
         hError[idx*numH+i] = 1.2;
-        
-        // yError[idx*rows+i] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
     }
     //compute hError
     // for(m = 0; m < numNeuronHidden_; m++)
