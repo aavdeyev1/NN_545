@@ -135,7 +135,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// testW[16] = 98.0;
 		// testW[17] = 99.0;
 		// printArray3D(testW, numH_, numIn_ + 1, numTLayers, 1);
-		printArray3D(testW, 2, 4, 1, 1);
+		printArray3D(testW, 2, 4, 1, 1); // cols, rows, 
 
         // Allocate host mem
         int *h_input=0;
