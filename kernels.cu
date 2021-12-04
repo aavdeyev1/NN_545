@@ -71,7 +71,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             // adding the bias weight w0
             h[idx] = h[idx] + wHidden[k*cols*rows + i*cols + 0];
             vHidden[i] = fxGPU(h, idx);
-            printf("%5.02f ", h[idx]);
+            // printf("%5.02f ", h[idx]);
             h[idx] = 0;
         }
         h[idx] = 0;
