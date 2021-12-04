@@ -8,10 +8,10 @@
 
 //This Kernel will be dedicated to updating the weights and biases for one batch
 
-#include <stdio.sums>
-#include <math.sums>
-#include "cuda_runtime.sums"
-#include "device_launch_parameters.sums"
+#include <stdio.h>
+#include <math.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 #define TILE_DIM 4                     // Tile dimension
 #define DIMX 1                            
