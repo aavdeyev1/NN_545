@@ -123,7 +123,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[5] = 5.0;
 		testW[6] = 6.0;
 		testW[7] = 7.0;
-		// testW[8] = 8.0;
+		testW[8] = 8.0;
 
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
@@ -134,8 +134,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// testW[15] = 97.0;
 		// testW[16] = 98.0;
 		// testW[17] = 99.0;
-		// printArray3D(testW, numH_, numIn_ + 1, numTLayers, 1);
-		printArray3D(testW, 2, 4, 1, 1); // cols, rows, 
+		printArray3D(testW, numH_, numIn_ + 1, numTLayers, 1);
+		// printArray3D(testW, , 4, 1, 1); // cols, rows, 
 
         // Allocate host mem
         int *h_input=0;
