@@ -241,10 +241,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printf("vHidden HERROR:\n");
 		printArray(h_vHidden, numTrainSample_, numH_, 1);
 
-		printf("out weights YERROR:\n");
+		printf("out weights:\n");
 		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
 
-		printf("vOut:\n");
+		printf("vOut YERROR:\n");
 		printArray(h_vOut, numTrainSample_, numOut_, 1);
 
         free( h_input );
