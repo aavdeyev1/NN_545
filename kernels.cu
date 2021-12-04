@@ -80,17 +80,20 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     // reset h (h = y)
     h[idx] = 0;
     rows = numOut;
+    int numLongLayers = 1;
     // Compute vOut
-    for(i=0; i<rows; i++){ //3x rows
-        for(j=0; j<numH; j++){ //2x, for each w1 w2 cols
-            printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
-            h[idx] = h[idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
+    for (k=0; k<numLongLayers; k++) { //1x z-dim
+		for(i=0; i<rows; i++){ //1x for numout
+            for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
+                printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
+                h[idx] = h[idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
+            }
+            // adding the bias weight w0
+            h[idx] = h[idx] + wOut[k*cols*rows + i*cols + 0];
+            vOut[idx] = fxGPU(h, idx);
+            printf("%5.02f ", h[idx]);
+            h[idx] = 0;
         }
-        // adding the bias weight w0
-        h[idx] = h[idx] + wOut[k*cols*rows + i*cols + 0];
-        vOut[i] = fxGPU(h, idx);
-        printf("%5.02f ", h[idx]);
-        h[idx] = 0;
     }
     // for(m = 0; m < numOut; m++)
     // {

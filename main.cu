@@ -157,7 +157,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numH_*sizeof(float));
 		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
-		h_vOut = (float *)malloc(numOut_*sizeof(float));
+		h_vOut = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		// d_h = (float *)malloc(); // TBD
 		// float* d_vOut;
@@ -179,7 +179,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
-        checkCudaErrors( cudaMalloc( &d_vOut, numOut_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) ) );
         printf("%d\n", numIn_*numTrainSample_);
 
@@ -220,7 +220,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
         
 		printf("Input:\n");
@@ -236,7 +236,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
 
 		printf("vOut:\n");
-		printArray(h_vOut, numOut_, 1, 1);
+		printArray(h_vOut, numTrainSample_, numOut_, 1);
 
         free( h_input );
         free( h_output );
