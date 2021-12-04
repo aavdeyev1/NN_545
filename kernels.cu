@@ -56,6 +56,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
+    int offset = numPairs;
     extern __shared__ float h[];
     h[idx] = 0;
     int i,j,k;
@@ -77,8 +78,8 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
         h[idx] = 0;
     }
 
-    // reset h (h = y)
-    h[idx] = 0;
+    // y (y = second half of h) 0-63 is for h, 64-127 is for y
+    h[offset + idx] = 0;
     rows = numOut;
     int numLongLayers = 1;
     // Compute vOut
@@ -86,13 +87,13 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
                 printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
-                h[idx] = h[idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
+                h[offset+idx] = h[offset+idx] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
             }
             // adding the bias weight w0
-            h[idx] = h[idx] + wOut[k*cols*rows + i*cols + 0];
+            h[offset+idx] = h[offset+idx] + wOut[k*cols*rows + i*cols + 0];
             vOut[idx*rows+i] = fxGPU(h, idx);
-            printf("%5.02f ", h[idx]);
-            h[idx] = 0;
+            printf("%5.02f ", h[offset+idx]);
+            h[offset+idx] = 0;
         }
     }
     // for(m = 0; m < numOut; m++)
