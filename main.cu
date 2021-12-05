@@ -101,8 +101,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		// float* h_wHidden;
 		float* d_h;
 		// float* d_vOut;
-		float* d_yError;
-		float* d_hError;
+		// float* d_yError;
+		// float* d_hError;
 		// float* d_wOut;
 		float* d_result;
 
@@ -115,21 +115,21 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
-		testW[0] = 0.0;
-		testW[1] = 1.0;
-		testW[2] = 2.0;
-		testW[3] = 3.0;
-		testW[4] = 4.0;
-		testW[5] = 5.0;
-		testW[6] = 6.0;
-		testW[7] = 7.0;
-		testW[8] = 8.0;
+		testW[0] = 0.1;
+		testW[1] = 0.2;
+		testW[2] = 0.3;
+		testW[3] = 0.4;
+		testW[4] = 0.5;
+		testW[5] = 0.6;
+		testW[6] = 0.7;
+		testW[7] = 0.8;
+		testW[8] = 0.9;
 
 		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
-		wOutTestIn[0] = 0.0;
-		wOutTestIn[1] = 1.0;
-		wOutTestIn[2] = 2.0;
-		wOutTestIn[3] = 3.0;
+		wOutTestIn[0] = 0.1;
+		wOutTestIn[1] = 0.2;
+		wOutTestIn[2] = 0.3;
+		wOutTestIn[3] = 0.5;
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
 		// testW[11] = 93.0;
@@ -153,19 +153,16 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *h_wHidden=0;
 		float *h_vOut=0;
 		float *h_wOut=0;
+		float *h_yError=0;
+		float *h_hError=0;
         h_input = (int *)malloc(numIn_*numTrainSample_*sizeof(int));
         h_output = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
         h_vHidden = (float *)malloc(numTrainSample_*numH_*sizeof(float));
 		h_wHidden = (float *)malloc(numTLayers*numH_*(numIn_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		h_vOut = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
-		// d_h = (float *)malloc(); // TBD
-		// float* d_vOut;
-		// float* d_yError;
-		// float* d_hError;
-		// float* d_wOut;
-		// float* d_result;
-        // error vector
+		h_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
+		h_hError = (float *)malloc(numTrainSample_*numH_*sizeof(float));
 
         // Allocate dev mem
         int *d_input=0;
@@ -174,14 +171,16 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *d_wHidden=0;
 		float *d_vOut=0;
 		float *d_wOut=0;
-
+		float *d_yError=0;
+		float *d_hError=0;
         checkCudaErrors( cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) ) );
         checkCudaErrors( cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) ) );
         checkCudaErrors( cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) ) );
-        printf("%d\n", numIn_*numTrainSample_);
+		checkCudaErrors( cudaMalloc( &d_yError, numOut_*numTrainSample_*sizeof(float) ) );
+        checkCudaErrors( cudaMalloc( &d_hError, numTrainSample_*numH_*sizeof(float) ) );
 
         checkCudaErrors( cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice) );
         checkCudaErrors( cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
@@ -195,12 +194,14 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         grid.x  = ceil( (float)numTrainSample_ / block.x );
         // grid.y  = ceil( (float)numTrainSample_ / block.y );
         
-        kernel<<<grid, block, numTrainSample_*sizeof(float)>>>(d_input,
+        kernel<<<grid, block, 3*numTrainSample_*sizeof(float)>>>(d_input,
 								 d_output,
 								 d_vHidden,
 								 d_wHidden,
 								 d_vOut,
 								 d_wOut,
+								 d_hError,
+								 d_yError,
 								 numIn_,
 								 numH_,
 								 numOut_,
@@ -219,23 +220,23 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 
         checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
-		checkCudaErrors( cudaMemcpy( h_vHidden, d_vHidden, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
-        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_vHidden, d_hError, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_vOut, d_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
 		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
         
 		printf("Input:\n");
         printArray(h_input, numTrainSample_, numIn_, 1);
-        // printArray(h_output, 1, numTrainSample_, 1);
+        
 		printf("hidden weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
-		printf("vHidden:\n");
+		printf("vHidden HERROR:\n");
 		printArray(h_vHidden, numTrainSample_, numH_, 1);
 
 		printf("out weights:\n");
 		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
 
-		printf("vOut:\n");
+		printf("vOut YERROR:\n");
 		printArray(h_vOut, numTrainSample_, numOut_, 1);
 
         free( h_input );
@@ -259,97 +260,5 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
     // for each training interation in maxNumTrainIterations
 
     // update weights KERNEL!
-
-    // for each training pair k:
-
-
-
-
-        // kernel call: 1 per input
-        // inputs: trainDataInput vector
-        //  trueOut vector, length numOut
-        //  hidden weights H
-
-        
-
-		
-	// 	for(iterate = 1; iterate <= maxNumTrainIterate; iterate ++)
-	// 	{
-	// 		for(i = 0; i < numTrainSample; i++)
-	// 		{
-	// 			// make an input vector of len num of input data, for a given training sample i
-	// 			for(k = 0; k < numIn_; k++)
-	// 				indata_[k] = trainData[i][k];
-				
-
-	// 			// forward computing
-	// 			//
-	// 			//
-	// 			// compute vHidden
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				for(k = 0; k < numNeuronIn_; k++)
-	// 					h = h + indata_[k] * wHidden_[m][k + 1];
-	// 				h = h + wHidden_[m][0];
-	// 				vHidden_[m] = pLogisticFun(static_cast<float>(h));
-
-	// 				h = 0;
-	// 			}
-
-	// 			// compute vOut
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 			{
-	// 				for(k = 0; k < numNeuronHidden_; k++)
-	// 					y = y + vHidden_[k] * wOut_[m][k + 1];
-	// 				y = y + wOut_[m][0];
-	// 				vOut_[m] = pLogisticFun(static_cast<float>(y));
-
-	// 				y = 0;
-	// 			}
-
-	// 			//
-	// 			//
-	// 			//backward compute
-
-	// 			//compute yError
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
-				
-	// 			//compute hError
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				temp = 0;
-	// 				for(k = 0; k < numNeuronOut_; k ++)
-	// 					temp = temp + wOut_[k][m + 1] * yError[k];
-	// 				hError[m] = temp * vHidden_[m] * (1 - vHidden_[m]);
-
-	// 			}
-
-	// 			//Adjust wOut[i][0] and wOut[i][j] and wHidden_
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				wOut_[m][0] = wOut_[m][0] - learnRate * yError[m];
-
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				for(k = 0; k < numNeuronHidden_; k++)
-    //                     wOut_[m][k + 1] = wOut_[m][k + 1] - learnRate * yError[m] * vHidden_[k];
-
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				wHidden_[m][0] = wHidden_[m][0] - learnRate * hError[m];
-	// 				for(k = 0; k < numNeuronIn_; k++)
-	// 					wHidden_[m][k + 1] = wHidden_[m][k + 1] - learnRate * hError[m] * indata_[k];
-	// 			}
-				
-	// 			//one statement below did not consider the general neural network constructure, just for this assignment
-	// 			result[static_cast<int>(indata_[0])][static_cast<int>(indata_[1])] = vOut_[0];
-			
-	// 		}// end for all samples
-
-	// 		} // 
-
-	// 	} // end for iteration
-		
-	// }// end for training
-
 
 }
