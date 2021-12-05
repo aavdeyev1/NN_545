@@ -157,10 +157,10 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
 		for(i=0; i<rows; i++){ // num of hidden neuron
 
             //bias weight
-            wHidden_[k*cols*rows + i*cols + 0] = wHidden_[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
+            wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
             for(j=0; j<cols; j++){ 
                 wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * vHidden[idx*numH+i];
-                printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + j]);
+                printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
             }
         }
     }
@@ -176,6 +176,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
     //         wHidden_[m][k + 1] = wHidden_[m][k + 1] - learnRate * hError[m] * indata_[k];
     // // }
     // }
+}
 
 //the transfer function used by neural network
 __device__ float fxGPU(float *x, int idx)
