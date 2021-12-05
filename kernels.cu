@@ -158,8 +158,8 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 
             //bias weight
             wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
-            for(j=0; j<cols; j++){ 
-                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * input[idx*numH+i];
+            for(j=0; j<numIn; j++){  //x3 for ea
+                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * input[idx*numIn+j];
                 printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
             }
         }
