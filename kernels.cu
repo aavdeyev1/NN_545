@@ -101,7 +101,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     }
 
     for (i=0; i< numH; i++)
-        hError[idx*numH+i] = .5*wHidden[idx*numH+i];
+        hError[idx*numH+i] = temp_offset;
     // compute yErr
     // for(i = 0; i < numOut; i++) {
     //     yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
