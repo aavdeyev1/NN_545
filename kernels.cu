@@ -127,11 +127,11 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    int i, k;
+    int i, j, k;
     int rows = numOut;
     int cols = numH;
     int numLongLayers = 1;
-    // Compute vOut
+    // Adjust bias weight wOut
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             // adjusting the bias weight w0
@@ -140,10 +140,20 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
         }
     }
 
-    //Adjust wOut[i][0] and wOut[i][j] and wHidden_
-    // adjust bias weight for wOut
-    // for(m = 0; m < numNeuronOut_; m++)
-    //     wOut_[m][0] = wOut_[m][0] - learnRate * yError[m];
+    // // adjust wOut general weights
+    for (k=0; k<numLongLayers; k++) { //1x z-dim
+		for(i=0; i<rows; i++){ //1x for numout
+            for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
+                wOut[k*cols*rows + i*cols + +1] = wOut[k*cols*rows + i*cols + 1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
+                printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+            }
+            // adding the bias weight w0
+            sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
+            vOut[idx*rows+i] = fxGPU(sums, y_offset);
+            printf("%5.02f ", sums[y_offset]);
+            sums[y_offset] = 0;
+        }
+    }
 
     // // adjust wOut general weights
     // for(m = 0; m < numNeuronOut_; m++)
