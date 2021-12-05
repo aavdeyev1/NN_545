@@ -104,6 +104,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for(i = 0; i < numOut; i++) {
         yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
     }
+    sums[temp_offset] = 0;
     // compute hErr
     for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
         for(j = 0; j < numH; j++) { // j is for cols, numH
