@@ -126,10 +126,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testW[8] = 8.0;
 
 		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
-		wOutTestIn[0] = 0.0;
-		wOutTestIn[1] = 1.0;
-		wOutTestIn[2] = 2.0;
-		wOutTestIn[3] = 3.0;
+		wOutTestIn[0] = 0.1;
+		wOutTestIn[1] = 0.2;
+		wOutTestIn[2] = 0.3;
+		wOutTestIn[3] = 0.5;
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
 		// testW[11] = 93.0;
