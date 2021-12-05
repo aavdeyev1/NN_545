@@ -147,11 +147,6 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
                 wOut[k*cols*rows + i*cols + +1] = wOut[k*cols*rows + i*cols + 1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
                 printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
             }
-            // adding the bias weight w0
-            sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
-            vOut[idx*rows+i] = fxGPU(sums, y_offset);
-            printf("%5.02f ", sums[y_offset]);
-            sums[y_offset] = 0;
         }
     }
 
