@@ -127,7 +127,7 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    int i;
+    int i, k;
     int rows = numOut;
     int cols = numH;
     int numLongLayers = 1;
