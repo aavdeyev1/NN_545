@@ -115,15 +115,15 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
-		testW[0] = 0.0;
-		testW[1] = 1.0;
-		testW[2] = 2.0;
-		testW[3] = 3.0;
-		testW[4] = 4.0;
-		testW[5] = 5.0;
-		testW[6] = 6.0;
-		testW[7] = 7.0;
-		testW[8] = 8.0;
+		testW[0] = 0.1;
+		testW[1] = 0.2;
+		testW[2] = 0.3;
+		testW[3] = 0.4;
+		testW[4] = 0.5;
+		testW[5] = 0.6;
+		testW[6] = 0.7;
+		testW[7] = 0.8;
+		testW[8] = 0.9;
 
 		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
 		wOutTestIn[0] = 0.1;
