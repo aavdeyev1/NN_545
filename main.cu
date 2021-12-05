@@ -258,7 +258,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 
 		cudaDeviceSynchronize();
-		cudaError_t err = cudaGetLastError();        // Get error code
+		cudaError_t err2 = cudaGetLastError();        // Get error code
 
 		checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
         checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
