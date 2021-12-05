@@ -140,7 +140,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
         }
     }
 
-    // // adjust wOut general weights
+    // adjust wOut general weights
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
@@ -150,19 +150,32 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
         }
     }
 
-    // // adjust wOut general weights
-    // for(m = 0; m < numNeuronOut_; m++)
-    //     for(k = 0; k < numNeuronHidden_; k++)
-    //         wOut_[m][k + 1] = wOut_[m][k + 1] - learnRate * yError[m] * vHidden_[k];
+    rows = numH;
+    cols = numIn;
+    // adjust bias weight for wHidden (outer) and wHidden weights (inner)
+    for (k=0; k<numLongLayers; k++) { //1x z-dim
+		for(i=0; i<rows; i++){ // num of hidden neuron
 
+            //bias weight
+            wHidden_[k*cols*rows + i*cols + 0] = wHidden_[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
+            for(j=0; j<cols; j++){ 
+                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * vHidden[idx*numH+i];
+                printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + j]);
+            }
+        }
+    }
+
+    // rows = numH;
+    // cols = numIn + 1;
     // // adjust bias weight for wHidden (outer) and wHidden weights (inner)
-    // for(m = 0; m < numNeuronHidden_; m++)
+    // for(i = 0; i < rows; i++)
     // {
-    //     wHidden_[m][0] = wHidden_[m][0] - learnRate * hError[m];
+    //     //bias weight
+    //     wHidden_[m][0] = wHidden_[m][0] - learnRate * hError[idx*numH+j];
     //     for(k = 0; k < numNeuronIn_; k++)
     //         wHidden_[m][k + 1] = wHidden_[m][k + 1] - learnRate * hError[m] * indata_[k];
+    // // }
     // }
-}
 
 //the transfer function used by neural network
 __device__ float fxGPU(float *x, int idx)
