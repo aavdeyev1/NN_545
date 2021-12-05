@@ -144,7 +144,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
-                wOut[k*cols*rows + i*cols + +1] = wOut[k*cols*rows + i*cols + 1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
+                wOut[k*cols*rows + i*cols + j+1] = wOut[k*cols*rows + i*cols + j+1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
                 printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
             }
         }
