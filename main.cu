@@ -246,6 +246,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printf("Adjusting weights...\n\n");
 
 		adjustWeights<<<grid, block>>>(learnRate,
+										d_vHidden,
 										d_wHidden,
 										d_wOut,
 										d_hError,
