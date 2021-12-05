@@ -119,7 +119,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     }
     
 }
-__global__ void adjustWeights(float learnRate, float *input, float *vHidden, float *wHidden, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
+__global__ void adjustWeights(float learnRate, int *input, float *vHidden, float *wHidden, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
 {// Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
