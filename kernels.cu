@@ -119,7 +119,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     }
     
 }
-__global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
+__global__ void adjustWeights(float learnRate, float *input, float *vHidden, float *wHidden, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
 {// Done
     // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
@@ -136,7 +136,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
 		for(i=0; i<rows; i++){ //1x for numout
             // adjusting the bias weight w0
             wOut[k*cols*rows + i*cols + 0] = wOut[k*cols*rows + i*cols + 0] - learnRate * yError[idx*numOut + i];
-            printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+            // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
         }
     }
 
@@ -145,7 +145,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
                 wOut[k*cols*rows + i*cols + j+1] = wOut[k*cols*rows + i*cols + j+1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
-                printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+                // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
             }
         }
     }
@@ -159,7 +159,7 @@ __global__ void adjustWeights(float learnRate, float *vHidden, float *wHidden, f
             //bias weight
             wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
             for(j=0; j<cols; j++){ 
-                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * vHidden[idx*numH+i];
+                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * input[idx*numH+i];
                 printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
             }
         }
