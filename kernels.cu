@@ -127,7 +127,19 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    wHidden[idx] = idx;
+    int rows = numOut;
+    int cols = numH;
+    int numLongLayers = 1;
+    // Compute vOut
+    for (k=0; k<numLongLayers; k++) { //1x z-dim
+		for(i=0; i<rows; i++){ //1x for numout
+            // adjusting the bias weight w0
+            sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
+            wOut[k*cols*rows + i*cols + 0] = wOut[k*cols*rows + i*cols + 0] - learnRate * yError[idx*numOut + i];
+            printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+        }
+    }
+
     //Adjust wOut[i][0] and wOut[i][j] and wHidden_
     // adjust bias weight for wOut
     // for(m = 0; m < numNeuronOut_; m++)
