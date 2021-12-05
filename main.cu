@@ -114,7 +114,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
         float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
-		float *test_yError = (float *)malloc(numOut*numTrainSample_*sizeof(float));
+		float *test_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		testW[0] = 0.1;
 		testW[1] = 0.2;
 		testW[2] = 0.3;
