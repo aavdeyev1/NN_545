@@ -115,7 +115,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
         }
-
+    }
     // for(m = 0; m < numNeuronOut_; m++)
     //                 yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
     //compute hError
