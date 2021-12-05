@@ -46,6 +46,7 @@ __global__ void matrix_multiply_simple(float* a, float* b, float* ab, int m, int
 
 __global__ void kernel( int *input, float *output, float *vHidden, float *wHidden, float *vOut, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
 {// Done
+    // need 2D indexing for input and 3D for wHidden
     int ix   = blockIdx.x*blockDim.x + threadIdx.x;
     int iy   = blockIdx.y*blockDim.y + threadIdx.y;
     int idx = iy*gridDim.x + ix;
@@ -88,7 +89,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
-                // printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
+                printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
                 sums[y_offset] = sums[y_offset] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
             }
             // adding the bias weight w0
@@ -98,24 +99,23 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             sums[y_offset] = 0;
         }
     }
-    // // compute yErr
-    // for(i = 0; i < numOut; i++) {
-    //     yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-    // }
-    // sums[temp_offset] = 0;
-    // // compute hErr
-    // for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
-    //     for(j = 0; j < numH; j++) { // j is for cols, numH
-    //         sums[temp_offset] = 0;
-    //         for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
-    //             // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
-    //             sums[temp_offset] = sums[temp_offset] + wOut[k*cols*rows + i*cols + (j+1)] * yError[idx*numOut+i];
-    //             // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-    //         }
-    //         printf("vHidden: %f | wOut: %f | yErr: %f\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)], yError[idx*numOut+i]);
-    //         hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
-    //     }
-    // }
+
+    // compute yErr
+    for(i = 0; i < numOut; i++) {
+        yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+    }
+    // compute hErr
+    for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
+        for(j = 0; j < numH; j++) { // j is for cols, numH
+            sums[temp_offset] = 0;
+            for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
+                // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
+                sums[temp_offset] = sums[temp_offset] + wOut[idx*cols + j+1] * yError[idx*numOut+i];
+                // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+            }
+            hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
+        }
+    }
     // for(m = 0; m < numNeuronOut_; m++)
     //                 yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
     //compute hError
@@ -160,33 +160,6 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     
 }
 
-__global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, float *hError, float *yError, int numIn, int numH, int numOut, int numLayers, int numPairs )
-{// Done
-    // need 2D indexing for input and 3D for wHidden
-    int ix   = blockIdx.x*blockDim.x + threadIdx.x;
-    int iy   = blockIdx.y*blockDim.y + threadIdx.y;
-    int idx = iy*gridDim.x + ix;
-    // if(ix > numTrainSample) return;
-
-
-    //Adjust wOut[i][0] and wOut[i][j] and wHidden_
-    // adjust bias weight for wOut
-    // for(m = 0; m < numNeuronOut_; m++)
-    //     wOut_[m][0] = wOut_[m][0] - learnRate * yError[m];
-
-    // // adjust wOut general weights
-    // for(m = 0; m < numNeuronOut_; m++)
-    //     for(k = 0; k < numNeuronHidden_; k++)
-    //         wOut_[m][k + 1] = wOut_[m][k + 1] - learnRate * yError[m] * vHidden_[k];
-
-    // // adjust bias weight for wHidden (outer) and wHidden weights (inner)
-    // for(m = 0; m < numNeuronHidden_; m++)
-    // {
-    //     wHidden_[m][0] = wHidden_[m][0] - learnRate * hError[m];
-    //     for(k = 0; k < numNeuronIn_; k++)
-    //         wHidden_[m][k + 1] = wHidden_[m][k + 1] - learnRate * hError[m] * indata_[k];
-    // }
-}
 // if (ix == 0)
 //         wHidden[idx] = 1;
 //     else
