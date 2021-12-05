@@ -47,7 +47,6 @@ int main()
     //                         { 0,0,0,0, 0,1,1,1},
     //                         { 0,0,0,1, 1,1,1,1}
     //                     };
-    __device__ float fxGPU(float); // init activation fn
 
     // Need linearized input/output for GPU.
     int i,j,k = 0,input[numIn_*numTrainSample_] = {0},output[numOut_*numTrainSample_] = {0};
@@ -62,8 +61,8 @@ int main()
             k ++;
         }
 
-    printArray(input, numTrainSample_, numIn_, 1);
-    printArray(output, 1, numTrainSample_, 1);
+    // printArray(input, numTrainSample_, numIn_, 1);
+    // printArray(output, 1, numTrainSample_, 1);
 
     training(input, output, numTrainSample_,0.02f,1l);
 
