@@ -113,7 +113,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
                 sums[temp_offset] = sums[temp_offset] + wOut[idx*cols + j+1] * yError[idx*numOut+i];
                 // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
             }
-            printf("sums: %f | wOut: %f | yErr: %f\n", sums[temp_offset], wOut[idx*cols + j+1], yError[idx*numOut+i])
+            printf("sums: %f | wOut: %f | yErr: %f\n", sums[temp_offset], wOut[idx*cols + j+1], yError[idx*numOut+i]);
             hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
         }
     }
