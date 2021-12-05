@@ -89,7 +89,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
-                printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
+                // printf("||?%5d *%5.02f||\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)]);
                 sums[y_offset] = sums[y_offset] + vHidden[idx*numH+j] * wOut[k*cols*rows + i*cols + (j+1)];
             }
             // adding the bias weight w0
@@ -99,26 +99,24 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             sums[y_offset] = 0;
         }
     }
-
-    for (i=0; i< numH; i++)
-        hError[idx*numH+i] = temp_offset;
     // compute yErr
-    // for(i = 0; i < numOut; i++) {
-    //     yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-    // }
-    // sums[temp_offset] = 0;
-    // // compute hErr
-    // for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
-    //     for(j = 0; j < numH; j++) { // j is for cols, numH
-    //         sums[temp_offset] = 0;
-    //         for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
-    //             // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
-    //             sums[temp_offset] = sums[temp_offset] + wOut[idx*cols + j+1] * yError[idx*numOut+i];
-    //             // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-    //         }
-    //         hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
-    //     }
-    // }
+    for(i = 0; i < numOut; i++) {
+        yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+    }
+    sums[temp_offset] = 0;
+    // compute hErr
+    for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
+        for(j = 0; j < numH; j++) { // j is for cols, numH
+            sums[temp_offset] = 0;
+            for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
+                // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
+                sums[temp_offset] = sums[temp_offset] + wOut[idx*cols + j+1] * yError[idx*numOut+i];
+                // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+            }
+            printf("sums: %f | wOut: %f | yErr: %f\n", sums[temp_offset], wOut[idx*cols + j+1], yError[idx*numOut+i])
+            hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
+        }
+    }
     // for(m = 0; m < numNeuronOut_; m++)
     //                 yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
     //compute hError
