@@ -234,7 +234,3 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 
  printf("\n");
 }
-
-// __device__ void add(float *sums, float *other) {
-//     atomicAdd(&sums, *other);
-//   }

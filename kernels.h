@@ -8,7 +8,5 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
 
 void printArray(int *arr, int rows, int cols, int shouldPrint);
 void printArray3D(float *arr, int rows, int cols, int pages, int sP);
-// __device__ void add(float *h, float *other);
-
 
 #endif

@@ -163,14 +163,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		h_wOut = (float *)malloc(numOut_*(numH_+1)*sizeof(float)); // 3D by Layer, numNeuron, numWeight
 		h_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
 		h_hError = (float *)malloc(numTrainSample_*numH_*sizeof(float));
-		
-		// d_h = (float *)malloc(); // TBD
-		// float* d_vOut;
-		// float* d_yError;
-		// float* d_hError;
-		// float* d_wOut;
-		// float* d_result;
-        // error vector
 
         // Allocate dev mem
         int *d_input=0;
@@ -234,7 +226,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         
 		printf("Input:\n");
         printArray(h_input, numTrainSample_, numIn_, 1);
-        // printArray(h_output, 1, numTrainSample_, 1);
+        
 		printf("hidden weights:\n");
 		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
@@ -268,97 +260,5 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
     // for each training interation in maxNumTrainIterations
 
     // update weights KERNEL!
-
-    // for each training pair k:
-
-
-
-
-        // kernel call: 1 per input
-        // inputs: trainDataInput vector
-        //  trueOut vector, length numOut
-        //  hidden weights H
-
-        
-
-		
-	// 	for(iterate = 1; iterate <= maxNumTrainIterate; iterate ++)
-	// 	{
-	// 		for(i = 0; i < numTrainSample; i++)
-	// 		{
-	// 			// make an input vector of len num of input data, for a given training sample i
-	// 			for(k = 0; k < numIn_; k++)
-	// 				indata_[k] = trainData[i][k];
-				
-
-	// 			// forward computing
-	// 			//
-	// 			//
-	// 			// compute vHidden
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				for(k = 0; k < numNeuronIn_; k++)
-	// 					h = h + indata_[k] * wHidden_[m][k + 1];
-	// 				h = h + wHidden_[m][0];
-	// 				vHidden_[m] = pLogisticFun(static_cast<float>(h));
-
-	// 				h = 0;
-	// 			}
-
-	// 			// compute vOut
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 			{
-	// 				for(k = 0; k < numNeuronHidden_; k++)
-	// 					y = y + vHidden_[k] * wOut_[m][k + 1];
-	// 				y = y + wOut_[m][0];
-	// 				vOut_[m] = pLogisticFun(static_cast<float>(y));
-
-	// 				y = 0;
-	// 			}
-
-	// 			//
-	// 			//
-	// 			//backward compute
-
-	// 			//compute yError
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
-				
-	// 			//compute hError
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				temp = 0;
-	// 				for(k = 0; k < numNeuronOut_; k ++)
-	// 					temp = temp + wOut_[k][m + 1] * yError[k];
-	// 				hError[m] = temp * vHidden_[m] * (1 - vHidden_[m]);
-
-	// 			}
-
-	// 			//Adjust wOut[i][0] and wOut[i][j] and wHidden_
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				wOut_[m][0] = wOut_[m][0] - learnRate * yError[m];
-
-	// 			for(m = 0; m < numNeuronOut_; m++)
-	// 				for(k = 0; k < numNeuronHidden_; k++)
-    //                     wOut_[m][k + 1] = wOut_[m][k + 1] - learnRate * yError[m] * vHidden_[k];
-
-	// 			for(m = 0; m < numNeuronHidden_; m++)
-	// 			{
-	// 				wHidden_[m][0] = wHidden_[m][0] - learnRate * hError[m];
-	// 				for(k = 0; k < numNeuronIn_; k++)
-	// 					wHidden_[m][k + 1] = wHidden_[m][k + 1] - learnRate * hError[m] * indata_[k];
-	// 			}
-				
-	// 			//one statement below did not consider the general neural network constructure, just for this assignment
-	// 			result[static_cast<int>(indata_[0])][static_cast<int>(indata_[1])] = vOut_[0];
-			
-	// 		}// end for all samples
-
-	// 		} // 
-
-	// 	} // end for iteration
-		
-	// }// end for training
-
 
 }
