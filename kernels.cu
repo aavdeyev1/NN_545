@@ -127,7 +127,7 @@ __global__ void adjustWeights(float learnRate, float *wHidden, float *wOut, floa
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-
+    wHidden[idx] = idx;
     //Adjust wOut[i][0] and wOut[i][j] and wHidden_
     // adjust bias weight for wOut
     // for(m = 0; m < numNeuronOut_; m++)

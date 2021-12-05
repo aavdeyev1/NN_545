@@ -243,6 +243,53 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printf("vOut:\n");
 		printArray(h_vOut, numTrainSample_, numOut_, 1);
 
+		printf("Adjusting weights...\n\n");
+
+		adjustWeights<<<grid, block>>>(learnRate,
+										d_wHidden,
+										d_wOut,
+										d_hError,
+										d_yError,
+										numIn_,
+										numH_,
+										numOut_,
+										numTLayers,
+										numTrainSample_);
+
+
+		cudaDeviceSynchronize();
+		cudaError_t err = cudaGetLastError();        // Get error code
+
+		checkCudaErrors( cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+
+        checkCudaErrors( cudaMemcpy( h_W, d_wHidden, numTLayers*numH_*(numIn_ + 1)*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_vHidden, d_hError, numTrainSample_*numH_*sizeof(float), cudaMemcpyDeviceToHost ) );
+        checkCudaErrors( cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( test_yError, d_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost ) );
+		checkCudaErrors( cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost ) );
+        
+		printf("Input:\n");
+        printArray(h_input, numTrainSample_, numIn_, 1);
+        
+		printf("hidden weights:\n");
+		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
+
+		printf("vHidden HERROR:\n");
+		printArray(h_vHidden, numTrainSample_, numH_, 1);
+
+		printf("out weights:\n");
+		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
+
+		printf("YERROR:\n");
+		printArray(test_yError, numTrainSample_, numOut_, 1);
+
+		printf("vOut:\n");
+		printArray(h_vOut, numTrainSample_, numOut_, 1);
+
+		printf("Finished...\n\n");
+
+
         free( h_input );
         free( h_output );
 		free( h_vHidden );
