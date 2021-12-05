@@ -104,17 +104,20 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     for(i = 0; i < numOut; i++) {
         yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
     }
-    // for(j = 0; j < numHidden; j++) {
-    //     for(i = 0; i < numOut; i++) {
-    //         sums[temp_offset] = sums[temp_offset] + wOut[idx*(numH + 1) + j+1]
-    //         yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
-    //     }
-    // }
+    // compute hErr
+    for (k=0; k<numLongLayers; k++) { //for future z dim is num layers
+        for(j = 0; j < numH; j++) { // j is for cols, numH
+            sums[temp_offset] = 0;
+            for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
+                // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
+                sums[temp_offset] = sums[temp_offset] + wOut[idx*cols + j+1] * yError[idx*numOut+i];
+                // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
+            }
+            hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
+        }
 
     // for(m = 0; m < numNeuronOut_; m++)
     //                 yError[m] =  vOut_[m] * ( 1 - vOut_[m]) * (  vOut_[m] - trueOut[i][m] );
-                
-
     //compute hError
     // for(m = 0; m < numNeuronHidden_; m++)
     // {
