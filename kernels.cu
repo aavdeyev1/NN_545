@@ -110,10 +110,10 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             sums[temp_offset] = 0;
             for(i = 0; i < numOut; i++) { // i is for rows, 1x for numOut
                 // wOut -> [wbias, w1, w2, w3]xnumOut, doing [w1-w3] now
-                sums[temp_offset] = sums[temp_offset] + wOut[i*cols + j+1] * yError[i*numOut+i];
+                sums[temp_offset] = sums[temp_offset] + wOut[k*cols*rows + i*cols + (j+1)] * yError[idx*numOut+i];
                 // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
             }
-            printf("vHidden: %f | wOut: %f | yErr: %f\n", vHidden[idx*numH+j], wOut[i*cols + j+1], yError[idx*numOut+i]);
+            printf("vHidden: %f | wOut: %f | yErr: %f\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)], yError[idx*numOut+i]);
             hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
         }
     }
