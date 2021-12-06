@@ -262,8 +262,12 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		testErr[10] = .4;
 		testErr[11] = .5;
 
+		batchAverageErrors(testErr, test_yError, numIn_, numH_, numOut_, numTLayers, numTrainSample_);
+		// batch size = numTrainSample_, but can be anything??
+
 		checkCudaErrors( cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
-        
+		checkCudaErrors( cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
+
 
 		adjustWeights<<<grid, block>>>(learnRate,
 										d_input,
