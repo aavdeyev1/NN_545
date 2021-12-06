@@ -35,24 +35,33 @@ __global__ void cuda_NN(int * trainData,
 						int numNeuronHidden_,
 						float h,
 						float * wHidden_,
-						int* vHidden_,
+						float* vHidden_, //float or int
 						int numNeuronOut_,
 						float * wOut_,
 						float* vOut_,
 						float * yError,
 						float * hError,
 						float *result){
-							
+
+	printf("numTrainSample: %d\n", numTrainSample);
+	printf("numNeuronIn_ %d\n", numNeuronIn_);
+	printf("numNeuronHidden_ %d\n", numNeuronHidden_);
+
+
 	int y = 0;
 	h = 0;
-	for(int iterate = 1; iterate <= maxNumTrainIterate; iterate ++){
+	for(int iterate = 1; iterate <= 1; iterate ++){
 		
 		for(int i = 0; i < numTrainSample; i++)
 			{
-				for(int k = 0; k < numNeuronIn_; k++)
+				printf("indata\n");
+				for(int k = 0; k < numNeuronIn_; k++){
 					//i is like row, k is like col
 					//calc format is: [row * numCols + col] is same as [row][col]
 					indata_[k] = trainData[i * 2 + k];
+					printf("%d", indata_[k]);
+				}
+				printf("\n");
 
 				// forward computing
 				//
@@ -117,6 +126,17 @@ __global__ void cuda_NN(int * trainData,
 				//one statement below did not consider the general neural network constructure, just for this assignment
 				//result[static_cast<int>(indata_[0])][static_cast<int>(indata_[1])] = vOut_[0];
 				result[static_cast<int>(indata_[0]) * 8 + static_cast<int>(indata_[1])] = vOut_[0];
+				
+				printf("result array: ");
+				for(int m = 0; m < 8; m++){
+					for(int k = 0; k < 8; k++){
+
+						printf("%d ", result[m * 8 + k]);
+
+					}
+					printf("\n");
+				}
+			
 			/*	
 			*/
 			}// end for all samples
@@ -309,7 +329,7 @@ template <class T> class bpNeuralNetwork
 		//setup cuda
 
 		int* d_indata;
-		int* d_vHidden;
+		float* d_vHidden;
 		int* d_trainData;
 		float* d_wHidden;
 		float* d_h;
@@ -333,7 +353,7 @@ template <class T> class bpNeuralNetwork
 		cudaMalloc(&d_trueOut, 64 * sizeof(int));
 		//cudaMalloc(&d_wHidden, numH_ * sizeof(float));
 		cudaMalloc(&d_h, sizeof(float));
-		cudaMalloc(&d_vHidden, numH_ * sizeof(int));
+		cudaMalloc(&d_vHidden, numH_ * sizeof(float));
 		cudaMalloc(&d_vOut, numOut_ * sizeof(float));
 		cudaMalloc(&d_yError, numNeuronOut_ * sizeof(float));
 		cudaMalloc(&d_hError, numNeuronHidden_ * sizeof(float));
@@ -347,7 +367,7 @@ template <class T> class bpNeuralNetwork
 		cudaMemcpy(d_trueOut, h_trueOut, 64 * sizeof(int), cudaMemcpyHostToDevice);
 		//cudaMemcpy(d_wHidden, wHidden_, numH_ * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_h, &h, sizeof(float), cudaMemcpyHostToDevice);	
-		cudaMemcpy(d_vHidden, vHidden_, numH_ * sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(d_vHidden, vHidden_, numH_ * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_vOut, vOut_, numOut_ * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_yError, yError, numNeuronOut_ * sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_hError, hError, numNeuronHidden_ * sizeof(float), cudaMemcpyHostToDevice);
