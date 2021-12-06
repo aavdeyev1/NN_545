@@ -245,6 +245,26 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 		printf("Adjusting weights...\n\n");
 
+		float *testErr = (float *)malloc(numTrainSample_*numH_*sizeof(float));
+		testErr[0] = .1;
+		testErr[1] = .2;
+		testErr[2] = .3;
+
+		testErr[3] = .4;
+		testErr[4] = .5;
+		testErr[5] = .6;
+
+		testErr[6] = .0;
+		testErr[7] = .1;
+		testErr[8] = .2;
+
+		testErr[9] = .3;
+		testErr[10] = .4;
+		testErr[11] = .5;
+
+		checkCudaErrors( cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice) );
+        
+
 		adjustWeights<<<grid, block>>>(learnRate,
 										d_input,
 										d_vHidden,
