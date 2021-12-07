@@ -318,7 +318,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printArray(test_yError, numTrainSample_, numOut_, 1);
 
 		printf("vOut:\n");
-		printArray(h_vOut, numTrainSample_, numOut_, 1);
+		printArray(h_vOut, 8, 8, 1);
 
 		printf("Finished...\n\n");
 
