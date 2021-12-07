@@ -15,6 +15,7 @@
 #include <limits>
 #include <string.h>
 //#include <conio.h>
+#include "timing.h"
 
 
 #define numIn_ 2
@@ -286,8 +287,16 @@ int main()
 
 
 	bpNeuralNetwork<int> myBPNN;
+
+	double start, finish, elapsed;
+	start = currentTime();
 	myBPNN.training( input,output,64,0.02f,100000l,fx);
+	finish = currentTime();
+	
+	cout << endl << "start: " << start << endl << "finish: " << finish << endl << "elapsed: " << finish - start << endl;
+
 	cout << "\n\n\n                Press any key to exit!";
+	
 	getchar();
 	return 0;
 }
