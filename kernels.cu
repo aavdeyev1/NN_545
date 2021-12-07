@@ -71,7 +71,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             sums[h_offset] = sums[h_offset] + wHidden[k*cols*rows + i*cols + 0];
-            vHidden[idx*numH+i] = (float)(1.0f / (1 + exp((float)(sums[h_offset] * (-1)))));
+            vHidden[idx*numH+i] = fxGPU(sums, h_offset);
             // printf("%5.02f ", sums[idx]);
             sums[h_offset] = 0;
         }
@@ -92,7 +92,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             }
             // adding the bias weight w0
             sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
-            vOut[idx*rows+i] = (float)(1.0f / (1 + exp((float)(sums[y_offset] * (-1)))));
+            vOut[idx*rows+i] = fxGPU(sums, y_offset);
             printf("%5.02f ", sums[y_offset]);
             sums[y_offset] = 0;
         }
@@ -179,9 +179,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 //the transfer function used by neural network
 __device__ float fxGPU(float *x, int idx)
 {
-    // float temp = (1 + exp((float)(x * (-1))));
-	// return (float)(1.0f / (1 + exp((float)(x * (-1)))));
-    return 1.0;
+	return (float)(1.0f / (1 + exp((float)(x * (-1)))));
 }
 
 void printArray(float *arr, int rows, int cols, int shouldPrint){
