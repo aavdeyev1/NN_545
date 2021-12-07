@@ -179,8 +179,9 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 //the transfer function used by neural network
 __device__ float fxGPU(float *x, int idx)
 {
-    float temp = 1 + exp((float)(x * (-1)));
-	return (float)(1.0f / temp );
+    // float temp = (1 + exp((float)(x * (-1))));
+	// return (float)(1.0f / (1 + exp((float)(x * (-1)))));
+    return 1.0;
 }
 
 void printArray(float *arr, int rows, int cols, int shouldPrint){
