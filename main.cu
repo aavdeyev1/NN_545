@@ -115,21 +115,23 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float *test_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
-		testW[0] = 0.1;
-		testW[1] = 0.2;
-		testW[2] = 0.3;
-		testW[3] = 0.4;
-		testW[4] = 0.5;
-		testW[5] = 0.6;
-		testW[6] = 0.7;
-		testW[7] = 0.8;
-		testW[8] = 0.9;
+		// testW[0] = 0.1;
+		// testW[1] = 0.2;
+		// testW[2] = 0.3;
+		// testW[3] = 0.4;
+		// testW[4] = 0.5;
+		// testW[5] = 0.6;
+		// testW[6] = 0.7;
+		// testW[7] = 0.8;
+		// testW[8] = 0.9;
 
 		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
-		wOutTestIn[0] = 0.1;
-		wOutTestIn[1] = 0.2;
-		wOutTestIn[2] = 0.3;
-		wOutTestIn[3] = 0.5;
+		randomWeights(testW, wOutTestIn, numH_, numIn_, numOut_);
+
+		// wOutTestIn[0] = 0.1;
+		// wOutTestIn[1] = 0.2;
+		// wOutTestIn[2] = 0.3;
+		// wOutTestIn[3] = 0.5;
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
 		// testW[11] = 93.0;
@@ -173,40 +175,42 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *d_wOut=0;
 		float *d_yError=0;
 		float *d_hError=0;
-         cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) );
-         cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) );
-         cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) );
-         cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) );
-         cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) );
-         cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) );
-		 cudaMalloc( &d_yError, numOut_*numTrainSample_*sizeof(float) );
-         cudaMalloc( &d_hError, numTrainSample_*numH_*sizeof(float) );
+		cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) );
+		cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) );
+		cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) );
+		cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) );
+		cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) );
+		cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) );
+		cudaMalloc( &d_yError, numOut_*numTrainSample_*sizeof(float) );
+		cudaMalloc( &d_hError, numTrainSample_*numH_*sizeof(float) );
 
-         cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice);
-         cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
-		 cudaMemcpy( d_wHidden, testW, numTLayers*numH_*(numIn_+1)*sizeof(float), cudaMemcpyHostToDevice);
-		 cudaMemcpy( d_wOut, wOutTestIn, numOut_*(numH_+1)*sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_input, trainData, numIn_*numTrainSample_*sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_output, trueOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_wHidden, testW, numTLayers*numH_*(numIn_+1)*sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_wOut, wOutTestIn, numOut_*(numH_+1)*sizeof(float), cudaMemcpyHostToDevice);
 
 
         dim3 grid, block;
 
-        block.x = 4;
+        block.x = numTrainSample_;
         grid.x  = ceil( (float)numTrainSample_ / block.x );
         // grid.y  = ceil( (float)numTrainSample_ / block.y );
         
+		int iteration;
+		for (iteration=0; i<maxNumTrainIterations; i++) {
         kernel<<<grid, block, 3*numTrainSample_*sizeof(float)>>>(d_input,
-								 d_output,
-								 d_vHidden,
-								 d_wHidden,
-								 d_vOut,
-								 d_wOut,
-								 d_hError,
-								 d_yError,
-								 numIn_,
-								 numH_,
-								 numOut_,
-								 numTLayers,
-								 numTrainSample_);
+								d_output,
+								d_vHidden,
+								d_wHidden,
+								d_vOut,
+								d_wOut,
+								d_hError,
+								d_yError,
+								numIn_,
+								numH_,
+								numOut_,
+								numTLayers,
+								numTrainSample_);
         
 		cudaDeviceSynchronize();
 		cudaError_t err = cudaGetLastError();        // Get error code
@@ -245,28 +249,28 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 		printf("Adjusting weights...\n\n");
 
-		float *testErr = (float *)malloc(numTrainSample_*numH_*sizeof(float));
-		testErr[0] = .1;
-		testErr[1] = .2;
-		testErr[2] = .3;
+		// float *testErr = (float *)malloc(numTrainSample_*numH_*sizeof(float));
+		// testErr[0] = .1;
+		// testErr[1] = .2;
+		// testErr[2] = .3;
 
-		testErr[3] = .4;
-		testErr[4] = .5;
-		testErr[5] = .6;
+		// testErr[3] = .4;
+		// testErr[4] = .5;
+		// testErr[5] = .6;
 
-		testErr[6] = .0;
-		testErr[7] = .1;
-		testErr[8] = .2;
+		// testErr[6] = .0;
+		// testErr[7] = .1;
+		// testErr[8] = .2;
 
-		testErr[9] = .3;
-		testErr[10] = .4;
-		testErr[11] = .5;
+		// testErr[9] = .3;
+		// testErr[10] = .4;
+		// testErr[11] = .5;
 
-		batchAverageErrors(testErr, test_yError, numIn_, numH_, numOut_, numTLayers, numTrainSample_);
-		// batch size = numTrainSample_, but can be anything??
+		batchAverageErrors(test_yError, h_vHidden, numIn_, numH_, numOut_, numTLayers, numTrainSample_);
+		// // batch size = numTrainSample_, but can be anything??
 
-		cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
-		cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
+		// cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
+		// cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
 
 
 		adjustWeights<<<grid, block>>>(learnRate,
@@ -285,6 +289,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 		cudaDeviceSynchronize();
 		cudaError_t err2 = cudaGetLastError();        // Get error code
+
+	}
 
 		cudaMemcpy( h_input, d_input, numIn_*numTrainSample_*sizeof(int), cudaMemcpyDeviceToHost );
         cudaMemcpy( h_output, d_output, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost );
