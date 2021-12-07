@@ -26,27 +26,27 @@ using namespace std;
 #define numTLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
 
 // #define numTrainSample_ 64
-#define numTrainSample_ 4
+// #define numTrainSample_ 4
 
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate);
 
 int main()
 {
 	int x = 2, y=2;
-	int indata[2][2] = {
-		{ 1,1},
-		{ 1,0}
-	};
-    // int indata[y][x] = {
-    //                         { 1,1,1,1, 1,1,1,1},
-    //                         { 1,1,1,1, 1,1,1,1},
-    //                         { 1,1,0,1, 1,1,1,1},
-    //                         { 1,0,0,0, 1,1,1,1},
-    //                         { 1,0,0,0, 0,0,1,1},
-    //                         { 0,0,0,0, 0,0,1,1},
-    //                         { 0,0,0,0, 0,1,1,1},
-    //                         { 0,0,0,1, 1,1,1,1}
-    //                     };
+	// int indata[2][2] = {
+	// 	{ 1,1},
+	// 	{ 1,0}
+	// };
+    int indata[y][x] = {
+                            { 1,1,1,1, 1,1,1,1},
+                            { 1,1,1,1, 1,1,1,1},
+                            { 1,1,0,1, 1,1,1,1},
+                            { 1,0,0,0, 1,1,1,1},
+                            { 1,0,0,0, 0,0,1,1},
+                            { 0,0,0,0, 0,0,1,1},
+                            { 0,0,0,0, 0,1,1,1},
+                            { 0,0,0,1, 1,1,1,1}
+                        };
 
     // Need linearized input/output for GPU.
     int i,j,k = 0,input[numIn_*numTrainSample_] = {0},output[numOut_*numTrainSample_] = {0};
