@@ -50,7 +50,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
     int idx = iy*gridDim.x + ix;
     // if(ix > numTrainSample) return;
 
-    printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, idx);
+    // printf("Block: %d | Thread: %d | ix: %d\n", blockIdx.x, threadIdx.x, idx);
     // for (int q=0; q<numTrainSample*numIn;q++)
     //     printf("%5d ", input[q]);
     // printf("\n");
@@ -93,7 +93,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
             // adding the bias weight w0
             sums[y_offset] = sums[y_offset] + wOut[k*cols*rows + i*cols + 0];
             vOut[idx*rows+i] = (float)(1.0f / (1 + exp((float)(sums[y_offset] * (-1)))));
-            printf("%5.02f ", sums[y_offset]);
+            // printf("%5.02f ", sums[y_offset]);
             sums[y_offset] = 0;
         }
     }
@@ -111,7 +111,7 @@ __global__ void kernel( int *input, float *output, float *vHidden, float *wHidde
                 sums[temp_offset] = sums[temp_offset] + wOut[k*cols*rows + i*cols + (j+1)] * yError[idx*numOut+i];
                 // yError[idx*numOut+i] =  vOut[idx*numOut+i] * ( 1 - vOut[idx*numOut+i]) * (  vOut[idx*numOut+i] - output[idx*numOut+i] );
             }
-            // printf("vHidden: %f | wOut: %f | yErr: %f\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)], yError[idx*numOut+i]);
+            // // printf("vHidden: %f | wOut: %f | yErr: %f\n", vHidden[idx*numH+j], wOut[k*cols*rows + i*cols + (j+1)], yError[idx*numOut+i]);
             hError[idx*numH+j] = sums[temp_offset] * vHidden[idx*numH+j]*(1 - vHidden[idx*numH+j]);
         }
     }
@@ -134,7 +134,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 		for(i=0; i<rows; i++){ //1x for numout
             // adjusting the bias weight w0
             wOut[k*cols*rows + i*cols + 0] = wOut[k*cols*rows + i*cols + 0] - learnRate * yError[i];
-            // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+            // // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
         }
     }
 
@@ -143,7 +143,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
                 wOut[k*cols*rows + i*cols + j+1] = wOut[k*cols*rows + i*cols + j+1] - learnRate * yError[i] * vHidden[idx*numH+j];
-                // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
+                // // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
             }
         }
     }
@@ -158,7 +158,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
             wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[i];
             for(j=0; j<numIn; j++){  //x3 for ea
                 wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[i] * input[idx*numIn+j];
-                printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
+                // printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
             }
         }
     }
@@ -192,12 +192,12 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
     for(i=0; i<rows; i++){
        for(j=0; j<cols; j++){
        
-          printf("%5.02f ", arr[i*cols + j]);
+          // printf("%5.02f ", arr[i*cols + j]);
        }
-       printf("\n");
+       // printf("\n");
     }
  
-    printf("\n");
+    // printf("\n");
  }
 
  void printArray(int *arr, int rows, int cols, int shouldPrint){
@@ -209,12 +209,12 @@ void printArray(float *arr, int rows, int cols, int shouldPrint){
     for(i=0; i<rows; i++){
        for(j=0; j<cols; j++){
        
-          printf("%d ", arr[i*cols + j]);
+          // printf("%d ", arr[i*cols + j]);
        }
-       printf("\n");
+       // printf("\n");
     }
  
-    printf("\n");
+    // printf("\n");
  }
 
 void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
