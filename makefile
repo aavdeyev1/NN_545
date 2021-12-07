@@ -237,7 +237,7 @@ NVCC = /usr/local/cuda/bin/nvcc
 CXX = g++
 
 # here are all the objects
-GPUOBJS = kernels.o
+GPUOBJS = main.o kernels.o
 OBJS = cpu.o
 
 # make and compile
