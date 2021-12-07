@@ -133,7 +133,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             // adjusting the bias weight w0
-            wOut[k*cols*rows + i*cols + 0] = wOut[k*cols*rows + i*cols + 0] - learnRate * yError[idx*numOut + i];
+            wOut[k*cols*rows + i*cols + 0] = wOut[k*cols*rows + i*cols + 0] - learnRate * yError[i];
             // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
         }
     }
@@ -142,7 +142,7 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
     for (k=0; k<numLongLayers; k++) { //1x z-dim
 		for(i=0; i<rows; i++){ //1x for numout
             for(j=0; j<numH; j++){ //3x, for each w1 w2 w3 cols (3hidden)
-                wOut[k*cols*rows + i*cols + j+1] = wOut[k*cols*rows + i*cols + j+1] - learnRate * yError[idx*numOut + i] * vHidden[idx*numH+j];
+                wOut[k*cols*rows + i*cols + j+1] = wOut[k*cols*rows + i*cols + j+1] - learnRate * yError[i] * vHidden[idx*numH+j];
                 // printf(">>>%5.02f \n", wOut[k*cols*rows + i*cols + 0]);
             }
         }
@@ -155,9 +155,9 @@ __global__ void adjustWeights(float learnRate, int *input, float *vHidden, float
 		for(i=0; i<rows; i++){ // num of hidden neuron
 
             //bias weight
-            wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[idx*numH+i];
+            wHidden[k*cols*rows + i*cols + 0] = wHidden[k*cols*rows + i*cols + 0] - learnRate * hError[i];
             for(j=0; j<numIn; j++){  //x3 for ea
-                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[idx*numH+i] * input[idx*numIn+j];
+                wHidden[k*cols*rows + i*cols + j+1] = wHidden[k*cols*rows + i*cols + j+1] - learnRate * hError[i] * input[idx*numIn+j];
                 printf(">>>%5.02f \n", wHidden[k*cols*rows + i*cols + j]);
             }
         }
