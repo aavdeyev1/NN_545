@@ -242,6 +242,47 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 
 void batchAverageErrors(float *hError, float *yError, int numIn, int numH, int numOut, int numTLayers, int numTrainSample_)
 {
-    
+    int i, j;
+    float sum;
+    // hError
+    for (j=0; j<numH; j++) {
+        sum = 0;
+        for (i=0; i<numTrainSample; i++){
+            sum = sum + hError[i*numH+j];
+        }
+        hError[j] = sum / numTrainSample;
+    }
+
+    // yError
+    for (j=0; j<numOut; j++) {
+        sum = 0;
+        for (i=0; i<numTrainSample; i++){
+            sum = sum + yError[i*numOut+j];
+        }
+        yError[j] = sum / numTrainSample;
+    }
+
+}
+
+void randomWeights(float *wHidden, float *wOut, int numH, int numIn, int numOut)
+{
+    int i, j;
+    /* initialize random seed: */
+    srand ((unsigned)time(NULL));
+
+    for(i = 0; i < numH; i++)
+    {
+        wHidden[i*numH + 0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+        for(j = 1; j < numIn + 1; j++)
+            wHidden[i*numH + j] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+    }
+
+    // Initiate wOut_ to random number in U(-0.5,+0.5)
+    for(i = 0; i < numOut; i++)
+    {
+        wOut[i*numOut + 0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+        for(j = 1; j < numH + 1; j++)
+            wOut[i*numOut + j] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
+    }
 
 }
