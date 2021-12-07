@@ -238,11 +238,10 @@ CXX = g++
 
 # here are all the objects
 GPUOBJS = main.o kernels.o
-OBJS = cpu.o
 
 # make and compile
-NN: $(OBJS) $(GPUOBJS)
-	$(NVCC) -o NN $(GPUOBJS) $(GPUOBJS)
+NN: $(GPUOBJS)
+	$(NVCC) -o NN $(GPUOBJS)
 
 main.o: main.cu
 	$(NVCC) -arch=sm_52 -c main.cu 

@@ -18,9 +18,6 @@
 #define DIMY 2
 #define DIMZ 3
 
-__device__ float fxGPU(float *x, int idx);
-void printArray(float *arr, int rows, int cols, int shouldPrint);
-
 // a (m * n)
 // b (n * k)
 // c (m * k)
