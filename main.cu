@@ -64,7 +64,7 @@ int main()
     // printArray(input, numTrainSample_, numIn_, 1);
     // printArray(output, 1, numTrainSample_, 1);
 
-    training(input, output, numTrainSample_,0.02f,1l);
+    training(input, output, numTrainSample_,0.02f,10000l);
 
 
     // bpNeuralNetwork<int> myBPNN;
