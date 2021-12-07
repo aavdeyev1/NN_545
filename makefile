@@ -245,7 +245,7 @@ NN: $(OBJS) $(GPUOBJS)
 	$(NVCC) -o NN $(GPUOBJS) $(GPUOBJS)
 
 main.o: main.cu
-        $(NVCC) -arch=sm_52 -c main.cu 
+	$(NVCC) -arch=sm_52 -c main.cu 
 
 kernels.o: kernels.cu
 	$(NVCC) -arch=sm_52 -c kernels.cu 
