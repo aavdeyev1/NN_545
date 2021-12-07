@@ -14,8 +14,8 @@ using namespace std;
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <helper_cuda.h>
-#include <helper_timer.h>
+// #include <helper_cuda.h>
+// #include <helper_timer.h>
 #include "cpu.h"
 #include "kernels.h"
 
