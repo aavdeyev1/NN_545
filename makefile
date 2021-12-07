@@ -52,7 +52,7 @@ warn ?= -Wall -Werror
 
 # This is where the cuda runtime libraries and includes can be found
 
-cudaroot  := /usr/local/cuda-8.0
+cudaroot  := /usr/local/cuda/bin/nvcc
 
 # Tony: location of NVIDIA SDK
 nv_sdk := $(cudaroot)
