@@ -175,7 +175,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		float *d_hError=0;
          cudaMalloc( &d_input, numIn_*numTrainSample_*sizeof(int) );
          cudaMalloc( &d_output, numOut_*numTrainSample_*sizeof(float) );
-         cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) ) );
+         cudaMalloc( &d_vHidden, numTrainSample_*numH_*sizeof(float) );
          cudaMalloc( &d_wHidden, numTLayers*numH_*(numIn_+1)*sizeof(float) );
          cudaMalloc( &d_vOut, numOut_*numTrainSample_*sizeof(float) );
          cudaMalloc( &d_wOut, numOut_*(numH_+1)*sizeof(float) );
