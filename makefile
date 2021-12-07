@@ -244,10 +244,10 @@ NN: $(GPUOBJS)
 	$(NVCC) -o NN $(GPUOBJS)
 
 main.o: main.cu
-	$(NVCC) -arch=sm_30 -c main.cu 
+	$(NVCC) -arch=sm_52 -c main.cu 
 
 kernels.o: kernels.cu
-	$(NVCC) -arch=sm_30 -c kernels.cu 
+	$(NVCC) -arch=sm_52 -c kernels.cu 
 
 
 clean:
