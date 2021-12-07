@@ -25,14 +25,14 @@ using namespace std;
 #define numOut_ 1
 #define numTLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
 
-// #define numTrainSample_ 64
+#define numTrainSample_ 64
 // #define numTrainSample_ 4
 
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate);
 
 int main()
 {
-	int x = 2, y=2;
+	int x = 8, y=8;
 	// int indata[2][2] = {
 	// 	{ 1,1},
 	// 	{ 1,0}
