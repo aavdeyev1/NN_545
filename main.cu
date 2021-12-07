@@ -32,7 +32,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 
 int main()
 {
-	int x = 8, y=8;
+	int x = 8;
+	int y=8;
 	// int indata[2][2] = {
 	// 	{ 1,1},
 	// 	{ 1,0}
