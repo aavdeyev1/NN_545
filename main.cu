@@ -197,7 +197,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         // grid.y  = ceil( (float)numTrainSample_ / block.y );
         
 		int iteration;
-		for (iteration=0; i<maxNumTrainIterations; i++) {
+		for (iteration=0; i<maxNumTrainIterate; i++) {
         kernel<<<grid, block, 3*numTrainSample_*sizeof(float)>>>(d_input,
 								d_output,
 								d_vHidden,
