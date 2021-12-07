@@ -65,7 +65,7 @@ int main()
     // printArray(input, numTrainSample_, numIn_, 1);
     // printArray(output, 1, numTrainSample_, 1);
 
-    training(input, output, numTrainSample_,0.02f,10000l);
+    training(input, output, numTrainSample_,0.02f,10l);
 
 
     // bpNeuralNetwork<int> myBPNN;
@@ -246,7 +246,7 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		printArray(test_yError, numTrainSample_, numOut_, 1);
 
 		printf("vOut:\n");
-		printArray(h_vOut, numTrainSample_, numOut_, 1);
+		printArray(h_vOut, 8, 8, 1);
 
 		printf("Adjusting weights...\n\n");
 
