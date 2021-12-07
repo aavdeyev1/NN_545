@@ -120,7 +120,7 @@ $(target): $(objects)
 
 
 %.o: %.cu
-	$(nvcc) -arch=sm_30 -c $< $(cuflags) $(cuinc_paths) -o $@
+	$(nvcc) -arch=sm_52 -c $< $(cuflags) $(cuinc_paths) -o $@
 
 %.cubin: %.cu
 	$(nvcc) -cubin $(cuflags) $(cuinc_paths) $^
