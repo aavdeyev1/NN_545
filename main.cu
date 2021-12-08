@@ -190,6 +190,25 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		cudaMemcpy( d_wHidden, testW, numTLayers*numH_*(numIn_+1)*sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy( d_wOut, wOutTestIn, numOut_*(numH_+1)*sizeof(float), cudaMemcpyHostToDevice);
 
+		printf("Input:\n");
+        printArray(input, numTrainSample_, numIn_, 1);
+        
+		printf("hidden weights:\n");
+		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
+
+		printf("vHidden HERROR:\n");
+		printArray(h_vHidden, numTrainSample_, numH_, 1);
+
+		printf("out weights:\n");
+		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
+
+		printf("YERROR:\n");
+		printArray(test_yError, numTrainSample_, numOut_, 1);
+
+		printf("vOut:\n");
+		printArray(h_vOut, 8, 8, 1);
+
+		printf("Adjusting weights...\n\n");
 
         dim3 grid, block;
 
@@ -229,26 +248,6 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         cudaMemcpy( h_vOut, d_vOut, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost );
 		cudaMemcpy( test_yError, d_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyDeviceToHost );
 		cudaMemcpy( h_wOut, d_wOut, numOut_*(numH_+1)*sizeof(float), cudaMemcpyDeviceToHost );
-        
-		printf("Input:\n");
-        printArray(h_input, numTrainSample_, numIn_, 1);
-        
-		printf("hidden weights:\n");
-		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
-
-		printf("vHidden HERROR:\n");
-		printArray(h_vHidden, numTrainSample_, numH_, 1);
-
-		printf("out weights:\n");
-		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
-
-		printf("YERROR:\n");
-		printArray(test_yError, numTrainSample_, numOut_, 1);
-
-		printf("vOut:\n");
-		printArray(h_vOut, 8, 8, 1);
-
-		printf("Adjusting weights...\n\n");
 
 		// float *testErr = (float *)malloc(numTrainSample_*numH_*sizeof(float));
 		// testErr[0] = .1;
@@ -270,8 +269,8 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		batchAverageErrors(test_yError, h_vHidden, numIn_, numH_, numOut_, numTLayers, numTrainSample_);
 		// // batch size = numTrainSample_, but can be anything??
 
-		// cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
-		// cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_hError, testErr, numH_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
 
 
 		adjustWeights<<<grid, block>>>(learnRate,
