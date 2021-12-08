@@ -240,6 +240,9 @@ void printArray3D(float *arr, int rows, int cols, int pages, int sP) {
 
 void batchAverageErrors(float *hError, float *yError, int numIn, int numH, int numOut, int numTLayers, int numTrainSample)
 {
+    printArray3D(hError, numTrainSample, numH, 1, 1);
+    printArray3D(yError, numTrainSample, numOut, 1, 1);
+    print("NEXT\n");
     int i, j;
     float sum;
     // hError
