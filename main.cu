@@ -273,6 +273,10 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		cudaMemcpy( d_yError, test_yError, numOut_*numTrainSample_*sizeof(float), cudaMemcpyHostToDevice);
 
 
+		printf("adjusting weeights...\nvHidden:\n");
+		printArray3D(h_vHidden, numTrainSample_, numH_, 1, 1);
+		printArray3D(test_yError, numTrainSample_, numOut_, 1, 1);
+
 		adjustWeights<<<grid, block>>>(learnRate,
 										d_input,
 										d_vHidden,
