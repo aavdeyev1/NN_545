@@ -270,10 +270,10 @@ void randomWeights(float *wHidden, float *wOut, int numH, int numIn, int numOut)
 
     for(i = 0; i < numH; i++)
     {
-        wHidden[i*numH + 0] = .5
+        wHidden[i*numH + 0] = .5;
         // wHidden[i*numH + 0] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
         for(j = 1; j < numIn + 1; j++)
-            wHidden[i*numH + j] = .5
+            wHidden[i*numH + j] = .5;
             // wHidden[i*numH + j] = static_cast<float>((rand() % 10000 + 1 - 5000)) / 10000.0f;
     }
 
