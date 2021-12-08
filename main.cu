@@ -190,25 +190,25 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
 		cudaMemcpy( d_wHidden, testW, numTLayers*numH_*(numIn_+1)*sizeof(float), cudaMemcpyHostToDevice);
 		cudaMemcpy( d_wOut, wOutTestIn, numOut_*(numH_+1)*sizeof(float), cudaMemcpyHostToDevice);
 
-		printf("Input:\n");
-        printArray(trainData, numTrainSample_, numIn_, 1);
+		// printf("Input:\n");
+        // printArray(trainData, numTrainSample_, numIn_, 1);
         
-		printf("hidden weights:\n");
-		printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
+		// printf("hidden weights:\n");
+		// printArray3D(h_W, numH_, numIn_+1, numTLayers, 1);
 
-		printf("vHidden HERROR:\n");
-		printArray(h_vHidden, numTrainSample_, numH_, 1);
+		// printf("vHidden HERROR:\n");
+		// printArray(h_vHidden, numTrainSample_, numH_, 1);
 
-		printf("out weights:\n");
-		printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
+		// printf("out weights:\n");
+		// printArray3D(h_wOut, numOut_, numH_+1, 1, 1);
 
-		printf("YERROR:\n");
-		printArray(test_yError, numTrainSample_, numOut_, 1);
+		// printf("YERROR:\n");
+		// printArray(test_yError, numTrainSample_, numOut_, 1);
 
-		printf("vOut:\n");
-		printArray(h_vOut, 8, 8, 1);
+		// printf("vOut:\n");
+		// printArray(h_vOut, 8, 8, 1);
 
-		printf("Adjusting weights...\n\n");
+		// printf("Adjusting weights...\n\n");
 
         dim3 grid, block;
 
