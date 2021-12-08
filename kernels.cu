@@ -259,6 +259,8 @@ void batchAverageErrors(float *hError, float *yError, int numIn, int numH, int n
         }
         yError[j] = sum / numTrainSample;
     }
+    printArray3D(hError, numTrainSample, numH, 1, 1);
+    printArray3D(yError, numTrainSample, numOut, 1, 1);
 
 }
 
