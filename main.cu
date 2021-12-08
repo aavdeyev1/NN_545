@@ -25,29 +25,29 @@ using namespace std;
 #define numOut_ 1
 #define numTLayers 1 // HIDDEN LAYER W/O OUTPUT LAYER
 
-#define numTrainSample_ 64
+#define numTrainSample_ 4
 // #define numTrainSample_ 4
 
 void training(int *trainData, int *trueOut, const int numTrainSample,const float learnRate,const long maxNumTrainIterate);
 
 int main()
 {
-	int x = 8;
-	int y=8;
-	// int indata[2][2] = {
-	// 	{ 1,1},
-	// 	{ 1,0}
-	// };
-    int indata[8][8] = {
-                            { 1,1,1,1, 1,1,1,1},
-                            { 1,1,1,1, 1,1,1,1},
-                            { 1,1,0,1, 1,1,1,1},
-                            { 1,0,0,0, 1,1,1,1},
-                            { 1,0,0,0, 0,0,1,1},
-                            { 0,0,0,0, 0,0,1,1},
-                            { 0,0,0,0, 0,1,1,1},
-                            { 0,0,0,1, 1,1,1,1}
-                        };
+	int x = 2;
+	int y=2;
+	int indata[2][2] = {
+		{ 1,1},
+		{ 1,0}
+	};
+    // int indata[8][8] = {
+    //                         { 1,1,1,1, 1,1,1,1},
+    //                         { 1,1,1,1, 1,1,1,1},
+    //                         { 1,1,0,1, 1,1,1,1},
+    //                         { 1,0,0,0, 1,1,1,1},
+    //                         { 1,0,0,0, 0,0,1,1},
+    //                         { 0,0,0,0, 0,0,1,1},
+    //                         { 0,0,0,0, 0,1,1,1},
+    //                         { 0,0,0,1, 1,1,1,1}
+    //                     };
 
     // Need linearized input/output for GPU.
     int i,j,k = 0,input[numIn_*numTrainSample_] = {0},output[numOut_*numTrainSample_] = {0};
@@ -65,7 +65,7 @@ int main()
     // printArray(input, numTrainSample_, numIn_, 1);
     // printArray(output, 1, numTrainSample_, 1);
 
-    training(input, output, numTrainSample_,0.02f,10l);
+    training(input, output, numTrainSample_,0.02f,1l);
 
 
     // bpNeuralNetwork<int> myBPNN;
@@ -116,23 +116,23 @@ void training(int *trainData, int *trueOut, const int numTrainSample,const float
         float* testW = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float* h_W = (float *)malloc(numTLayers*numH_*(numIn_ + 1)*sizeof(float));
 		float *test_yError = (float *)malloc(numOut_*numTrainSample_*sizeof(float));
-		// testW[0] = 0.1;
-		// testW[1] = 0.2;
-		// testW[2] = 0.3;
-		// testW[3] = 0.4;
-		// testW[4] = 0.5;
-		// testW[5] = 0.6;
-		// testW[6] = 0.7;
-		// testW[7] = 0.8;
-		// testW[8] = 0.9;
+		testW[0] = 0.5;
+		testW[1] = 0.5;
+		testW[2] = 0.5;
+		testW[3] = 0.5;
+		testW[4] = 0.5;
+		testW[5] = 0.5;
+		testW[6] = 0.5;
+		testW[7] = 0.5;
+		testW[8] = 0.5;
 
 		float *wOutTestIn = (float *)malloc(numOut_*(numH_+1)*sizeof(float));
-		randomWeights(testW, wOutTestIn, numH_, numIn_, numOut_);
+		// randomWeights(testW, wOutTestIn, numH_, numIn_, numOut_);
 
-		// wOutTestIn[0] = 0.1;
-		// wOutTestIn[1] = 0.2;
-		// wOutTestIn[2] = 0.3;
-		// wOutTestIn[3] = 0.5;
+		wOutTestIn[0] = 0.5;
+		wOutTestIn[1] = 0.5;
+		wOutTestIn[2] = 0.5;
+		wOutTestIn[3] = 0.5;
 		// testW[9] = 91.0;
 		// testW[10] = 92.0;
 		// testW[11] = 93.0;
